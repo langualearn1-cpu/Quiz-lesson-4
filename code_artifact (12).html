@@ -1,0 +1,2780 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>الاختبار التفاعلي الشامل للغة الإنجليزية | Interactive English Exam</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --secondary: #0ea5e9;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #f59e0b;
+    }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 50%, #fdf4ff 100%);
+      min-height: 100vh;
+      user-select: none;
+    }
+    .en-font {
+      font-family: 'Fredoka', sans-serif;
+      direction: ltr;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Word Bank & Dropzones */
+    .word-chip {
+      cursor: grab;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .word-chip:hover {
+      transform: translateY(-2px);
+    }
+    .word-chip:active {
+      cursor: grabbing;
+    }
+    .word-chip.selected-chip {
+      transform: scale(1.07);
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.35);
+      background: #4f46e5 !important;
+      color: white !important;
+      border-color: #4338ca !important;
+    }
+    .drop-zone {
+      min-height: 42px;
+      transition: all 0.2s ease;
+    }
+    .drop-zone.drag-over {
+      background-color: #e0f2fe !important;
+      border-color: #0284c7 !important;
+      transform: scale(1.03);
+    }
+
+    /* Circle the correct word style (Question 3) */
+    .circle-option {
+      position: relative;
+      padding: 5px 16px;
+      border-radius: 9999px;
+      border: 2.5px solid #e2e8f0;
+      background-color: #f8fafc;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .circle-option:hover {
+      background-color: #f1f5f9;
+      border-color: #94a3b8;
+    }
+    .circle-option.circled {
+      border-color: #2563eb;
+      background-color: #eff6ff;
+      color: #1d4ed8;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+      transform: scale(1.04);
+    }
+    .circle-option.circled-correct {
+      border-color: #16a34a !important;
+      background-color: #dcfce7 !important;
+      color: #15803d !important;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2) !important;
+    }
+    .circle-option.circled-wrong {
+      border-color: #dc2626 !important;
+      background-color: #fee2e2 !important;
+      color: #b91c1c !important;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2) !important;
+    }
+
+    /* Confetti Canvas */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body class="text-slate-800 pb-16">
+
+  <!-- Confetti Canvas for Celebration -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Top Header -->
+  <header class="bg-white/90 backdrop-blur-md border-b border-indigo-100 sticky top-0 z-40 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-sky-500 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl md:text-2xl font-black text-indigo-950">الاختبار التفاعلي الشامل للغة الإنجليزية</h1>
+          <p class="text-xs md:text-sm text-slate-500 font-semibold">Adverbs of Frequency • Am/Is/Are • Present Progressive • Was/Were • Ordering & Comparatives</p>
+        </div>
+      </div>
+
+      <!-- Student Info & Controls -->
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center bg-slate-100 rounded-xl px-3 py-1.5 border border-slate-200">
+          <span class="text-xs font-bold text-slate-500 ml-2">اسم الطالب/ـة:</span>
+          <input id="student-name" type="text" placeholder="اكتب اسمك هنا..." class="bg-transparent text-sm font-bold text-indigo-950 focus:outline-none w-36 md:w-44" />
+        </div>
+
+        <button id="sound-toggle" onclick="toggleSound()" class="p-2.5 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition font-bold text-sm flex items-center gap-1.5" title="تشغيل/كتم المؤثرات الصوتية">
+          <span id="sound-icon">🔊</span>
+          <span class="hidden sm:inline">الصوت</span>
+        </button>
+
+        <button onclick="finishExam()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-md shadow-emerald-200 transition flex items-center gap-2">
+          <span>إنهاء الاختبار وعرض النتيجة</span>
+          <span>🏆</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="max-w-7xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 no-print">
+
+    <!-- Questions Board Sidebar (لوحة الأسئلة) -->
+    <aside class="lg:col-span-3 space-y-4">
+      <div class="bg-white rounded-3xl p-4 shadow-lg shadow-indigo-100/60 border border-indigo-50 sticky top-20">
+        <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
+          <h2 class="font-extrabold text-base text-indigo-950 flex items-center gap-2">
+            <span>📋</span>
+            <span>لوحة الأسئلة (8 أسئلة)</span>
+          </h2>
+          <span id="overall-progress-badge" class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700">0 / 75</span>
+        </div>
+
+        <!-- Overall Progress Bar -->
+        <div class="mb-4">
+          <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+            <span>نسبة الإنجاز الكلية</span>
+            <span id="overall-progress-pct">0%</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+            <div id="overall-progress-bar" class="h-full bg-gradient-to-r from-indigo-600 to-sky-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons for the 8 Questions -->
+        <div class="space-y-2 max-h-[380px] overflow-y-auto pr-1" id="question-nav-list">
+          <!-- Dynamically updated -->
+        </div>
+
+        <!-- View Mode Toggle -->
+        <div class="mt-4 pt-3 border-t border-slate-100 space-y-2">
+          <button onclick="checkCurrentQuestion()" class="w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-1.5">
+            <span>✨</span>
+            <span>تحقق من إجابات هذا السؤال</span>
+          </button>
+          <button onclick="toggleShowAllQuestions()" id="view-mode-btn" class="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center justify-center gap-1.5">
+            <span>📑</span>
+            <span id="view-mode-text">عرض جميع الأسئلة معاً</span>
+          </button>
+          <button onclick="resetAllExam()" class="w-full py-1.5 px-3 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 font-bold text-xs transition flex items-center justify-center gap-1.5">
+            <span>🔄</span>
+            <span>إعادة تعيين الاختبار بالكامل</span>
+          </button>
+        </div>
+
+        <!-- Live Score Box (Shown after finishing) -->
+        <div id="sidebar-result-card" class="hidden mt-4 pt-3 border-t border-slate-100 bg-gradient-to-br from-indigo-50 to-sky-50 rounded-2xl p-3.5 border border-indigo-100 text-center">
+          <p class="text-xs font-bold text-indigo-600 mb-0.5">نتيجة الاختبار النهائية</p>
+          <div class="text-2xl font-black text-indigo-950 mb-0.5" id="sidebar-score-text">75 / 75</div>
+          <div class="text-xs font-extrabold text-emerald-600 mb-2.5" id="sidebar-pct-text">100% - ممتاز!</div>
+          <button onclick="openResultsModal()" class="w-full py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow transition mb-1.5">
+            📊 عرض التقرير والتغذية الراجعة
+          </button>
+          <button onclick="printExamResult()" class="w-full py-1.5 rounded-xl bg-white hover:bg-slate-50 text-indigo-700 border border-indigo-200 font-bold text-xs transition">
+            🖨️ طباعة النتيجة والشهادة
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Questions Content Area -->
+    <main class="lg:col-span-9 space-y-8">
+
+      <!-- ==========================================
+           QUESTION 1: ADVERBS OF FREQUENCY (13 ITEMS)
+           ========================================== -->
+      <section id="q-section-1" class="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 border border-indigo-50 overflow-hidden">
+        <div class="bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-4 text-white flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-black text-lg">1</span>
+            <div>
+              <h2 class="text-lg md:text-xl font-black">السؤال الأول: ظروف التكرار (Adverbs of frequency)</h2>
+              <p class="text-xs md:text-sm text-amber-100 font-semibold en-font">I. Fill in the blanks with the correct word & II. Choose the correct answer</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="clearQ1()" class="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
+              مسح الإجابات 🗑️
+            </button>
+            <span id="q1-badge" class="px-3 py-1.5 rounded-lg bg-white text-amber-700 font-black text-xs">0 / 13</span>
+          </div>
+        </div>
+
+        <div class="bg-amber-50/70 px-6 py-3 border-b border-amber-100 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm text-amber-950 font-semibold">
+          <div class="flex items-center gap-2">
+            <span>👆</span>
+            <span><strong>طريقة الحل:</strong> في الجزء الأول اسحب الكلمة أو اضغط عليها ثم اضغط على الفراغ حسب الدوائر الموضحة (○○○ = never، ●○○ = sometimes، ●●●○ = usually، ●●●● = always)، وفي الجزء الثاني اختر الإجابة الصحيحة.</span>
+          </div>
+          <span class="text-amber-700 font-bold">🔊 اضغط على السماعة لسماع النطق</span>
+        </div>
+
+        <div id="q1-feedback" class="hidden mx-6 mt-4 p-4 rounded-2xl border text-sm font-bold"></div>
+
+        <div class="p-6 md:p-8 space-y-8" dir="ltr">
+          <div class="text-center">
+            <h3 class="en-font text-2xl md:text-3xl font-black text-blue-700">Adverbs of frequency</h3>
+            <p class="en-font text-base md:text-lg font-extrabold text-amber-900 mt-1">I. Fill in the blanks with the correct word.</p>
+          </div>
+
+          <!-- Word Bank with Dots -->
+          <div id="q1-word-bank" class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Part I: 8 Fill in the blanks sentences -->
+          <div id="q1-part1-list" class="space-y-3 max-w-4xl mx-auto">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Part II: 5 Multiple Choice Items -->
+          <div class="pt-6 border-t-2 border-slate-100 max-w-4xl mx-auto">
+            <h4 class="en-font text-lg md:text-xl font-black text-amber-900 mb-4">II. Choose the correct answer.</h4>
+            <div id="q1-part2-list" class="space-y-4">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+          <button onclick="checkQuestion(1)" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow transition">
+            تحقق من السؤال الأول ✔️
+          </button>
+          <button onclick="goToQuestion(2)" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow transition flex items-center gap-2">
+            <span>السؤال التالي (Am - Is - Are)</span>
+            <span>⬅️</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           QUESTION 2: AM - IS - ARE (7 ITEMS)
+           ========================================== -->
+      <section id="q-section-2" class="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 border border-indigo-50 overflow-hidden hidden">
+        <div class="bg-gradient-to-r from-sky-600 to-indigo-600 px-6 py-4 text-white flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-black text-lg">2</span>
+            <div>
+              <h2 class="text-lg md:text-xl font-black">السؤال الثاني: ضع الكلمة المناسبة (Am – Is – Are)</h2>
+              <p class="text-xs md:text-sm text-sky-100 font-semibold en-font">Complete the sentences with Am, Is, or Are</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="clearQ2()" class="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
+              مسح الإجابات 🗑️
+            </button>
+            <span id="q2-badge" class="px-3 py-1.5 rounded-lg bg-white text-sky-700 font-black text-xs">0 / 7</span>
+          </div>
+        </div>
+
+        <div class="bg-sky-50/80 px-6 py-3 border-b border-sky-100 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm text-sky-950 font-semibold">
+          <div class="flex items-center gap-2">
+            <span>👆</span>
+            <span><strong>طريقة الحل:</strong> اسحب الكلمة (`am` أو `is` أو `are`) وأفلتها في الفراغ المناسب، أو اضغط على الكلمة ثم اضغط على الفراغ.</span>
+          </div>
+          <span class="text-sky-700 font-bold">🔊 اضغط على السماعة لسماع الجملة كاملة</span>
+        </div>
+
+        <div id="q2-feedback" class="hidden mx-6 mt-4 p-4 rounded-2xl border text-sm font-bold"></div>
+
+        <div class="p-6 md:p-8" dir="ltr">
+          <div class="text-center mb-6">
+            <h3 class="en-font text-3xl md:text-4xl font-black text-slate-900 tracking-wide">Am – Is – Are 🤔❓</h3>
+          </div>
+
+          <!-- Word Bank -->
+          <div id="q2-word-bank" class="flex items-center justify-center gap-4 mb-8 p-4 rounded-2xl bg-sky-50 border-2 border-sky-200 max-w-md mx-auto">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- 7 Illustrated Sentences -->
+          <div id="q2-list" class="space-y-4 max-w-4xl mx-auto">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <button onclick="goToQuestion(1)" class="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition">
+              ➡️ السؤال السابق
+            </button>
+            <button onclick="checkQuestion(2)" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow transition">
+              تحقق من السؤال الثاني ✔️
+            </button>
+          </div>
+          <button onclick="goToQuestion(3)" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow transition flex items-center gap-2">
+            <span>السؤال التالي (Present Progressive)</span>
+            <span>⬅️</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           QUESTION 3: PRESENT PROGRESSIVE (20 ITEMS)
+           ========================================== -->
+      <section id="q-section-3" class="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 border border-indigo-50 overflow-hidden hidden">
+        <div class="bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-4 text-white flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-black text-lg">3</span>
+            <div>
+              <h2 class="text-lg md:text-xl font-black">السؤال الثالث: ضع دائرة حول الإجابة الصحيحة (Present Progressive)</h2>
+              <p class="text-xs md:text-sm text-violet-100 font-semibold en-font">PRESENT PROGRESSIVE - Choose the correct answer (1 - 20)</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="clearQ3()" class="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
+              مسح الاختيارات 🗑️
+            </button>
+            <span id="q3-badge" class="px-3 py-1.5 rounded-lg bg-white text-violet-700 font-black text-xs">0 / 20</span>
+          </div>
+        </div>
+
+        <div class="bg-violet-50/70 px-6 py-3 border-b border-violet-100 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm text-violet-950 font-semibold">
+          <div class="flex items-center gap-2">
+            <span>⭕</span>
+            <span><strong>طريقة الحل:</strong> اضغط على الإجابة الصحيحة من بين الأقواس في كل جملة لوضع دائرة حولها.</span>
+          </div>
+          <span class="text-violet-700 font-bold">🔊 اضغط على السماعة للاستماع للجملة</span>
+        </div>
+
+        <div id="q3-feedback" class="hidden mx-6 mt-4 p-4 rounded-2xl border text-sm font-bold"></div>
+
+        <div class="p-6 md:p-8" dir="ltr">
+          <div class="text-center mb-6">
+            <h3 class="en-font text-3xl md:text-4xl font-black text-slate-900 tracking-wider">PRESENT PROGRESSIVE</h3>
+            <p class="en-font text-base font-bold text-slate-600 mt-1">Choose the correct answer</p>
+          </div>
+
+          <div id="q3-list" class="space-y-3 max-w-4xl mx-auto">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <button onclick="goToQuestion(2)" class="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition">
+              ➡️ السؤال السابق
+            </button>
+            <button onclick="checkQuestion(3)" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow transition">
+              تحقق من السؤال الثالث ✔️
+            </button>
+          </div>
+          <button onclick="goToQuestion(4)" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow transition flex items-center gap-2">
+            <span>السؤال التالي (WAS and WERE)</span>
+            <span>⬅️</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           QUESTION 4: WAS AND WERE (10 ITEMS)
+           ========================================== -->
+      <section id="q-section-4" class="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 border border-indigo-50 overflow-hidden hidden">
+        <div class="bg-gradient-to-r from-cyan-600 to-blue-600 px-6 py-4 text-white flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-black text-lg">4</span>
+            <div>
+              <h2 class="text-lg md:text-xl font-black">السؤال الرابع: ضع الكلمة المناسبة (WAS and WERE)</h2>
+              <p class="text-xs md:text-sm text-cyan-100 font-semibold en-font">Write the correct answer (was / were)</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="clearQ4()" class="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
+              مسح الإجابات 🗑️
+            </button>
+            <span id="q4-badge" class="px-3 py-1.5 rounded-lg bg-white text-cyan-700 font-black text-xs">0 / 10</span>
+          </div>
+        </div>
+
+        <div class="bg-cyan-50/70 px-6 py-3 border-b border-cyan-100 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm text-cyan-950 font-semibold">
+          <div class="flex items-center gap-2">
+            <span>👆</span>
+            <span><strong>طريقة الحل:</strong> اسحب الكلمة (`was` للمفرد أو `were` للجمع) وأفلتها في الفراغ، أو اضغط على الكلمة ثم اضغط على الفراغ.</span>
+          </div>
+          <span class="text-cyan-700 font-bold">🔊 اضغط على السماعة لسماع الجملة</span>
+        </div>
+
+        <div id="q4-feedback" class="hidden mx-6 mt-4 p-4 rounded-2xl border text-sm font-bold"></div>
+
+        <div class="p-6 md:p-8" dir="ltr">
+          <div class="text-center mb-6">
+            <h3 class="en-font text-3xl md:text-4xl font-black text-sky-600 tracking-wide underline decoration-slate-800 underline-offset-8">WAS and WERE</h3>
+            <p class="en-font text-base font-bold text-slate-700 mt-3">Write the correct answer.</p>
+          </div>
+
+          <!-- Word Bank -->
+          <div id="q4-word-bank" class="flex items-center justify-center gap-6 mb-8 p-4 rounded-2xl bg-cyan-50 border-2 border-cyan-200 max-w-md mx-auto">
+            <!-- Populated by JS -->
+          </div>
+
+          <div id="q4-list" class="space-y-3 max-w-3xl mx-auto">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <button onclick="goToQuestion(3)" class="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition">
+              ➡️ السؤال السابق
+            </button>
+            <button onclick="checkQuestion(4)" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow transition">
+              تحقق من السؤال الرابع ✔️
+            </button>
+          </div>
+          <button onclick="goToQuestion(5)" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow transition flex items-center gap-2">
+            <span>السؤال التالي (WASN'T and WEREN'T)</span>
+            <span>⬅️</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           QUESTION 5: WASN'T AND WEREN'T (10 ITEMS)
+           ========================================== -->
+      <section id="q-section-5" class="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 border border-indigo-50 overflow-hidden hidden">
+        <div class="bg-gradient-to-r from-rose-600 to-pink-600 px-6 py-4 text-white flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-black text-lg">5</span>
+            <div>
+              <h2 class="text-lg md:text-xl font-black">السؤال الخامس: أكمل الفراغ بالسحب والإفلات (WASN'T and WEREN'T)</h2>
+              <p class="text-xs md:text-sm text-rose-100 font-semibold en-font">Write the correct answer (wasn't / weren't)</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="clearQ5()" class="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
+              مسح الإجابات 🗑️
+            </button>
+            <span id="q5-badge" class="px-3 py-1.5 rounded-lg bg-white text-rose-700 font-black text-xs">0 / 10</span>
+          </div>
+        </div>
+
+        <div class="bg-rose-50/70 px-6 py-3 border-b border-rose-100 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm text-rose-950 font-semibold">
+          <div class="flex items-center gap-2">
+            <span>🧲</span>
+            <span><strong>طريقة الحل:</strong> اسحب الكلمة (`wasn't` أو `weren't`) من صندوق الكلمات وأفلتها في الفراغ المناسب، أو اضغط على الكلمة ثم اضغط على الفراغ.</span>
+          </div>
+          <span class="text-rose-700 font-bold">🔊 اضغط على السماعة لسماع الجملة</span>
+        </div>
+
+        <div id="q5-feedback" class="hidden mx-6 mt-4 p-4 rounded-2xl border text-sm font-bold"></div>
+
+        <div class="p-6 md:p-8" dir="ltr">
+          <div class="text-center mb-6">
+            <h3 class="en-font text-3xl md:text-4xl font-black text-rose-600 tracking-wide underline decoration-slate-800 underline-offset-8">WASN'T and WEREN'T</h3>
+            <p class="en-font text-base font-bold text-slate-700 mt-3">Write the correct answer.</p>
+          </div>
+
+          <!-- Word Bank -->
+          <div id="q5-word-bank" class="flex items-center justify-center gap-6 mb-8 p-4 rounded-2xl bg-rose-50 border-2 border-rose-200 max-w-md mx-auto">
+            <!-- Populated by JS -->
+          </div>
+
+          <div id="q5-list" class="space-y-3 max-w-4xl mx-auto">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <button onclick="goToQuestion(4)" class="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition">
+              ➡️ السؤال السابق
+            </button>
+            <button onclick="checkQuestion(5)" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow transition">
+              تحقق من السؤال الخامس ✔️
+            </button>
+          </div>
+          <button onclick="goToQuestion(6)" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow transition flex items-center gap-2">
+            <span>السؤال التالي (جدول ظروف التكرار)</span>
+            <span>⬅️</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           QUESTION 6: COMPLETE THE CHART WITH ADVERB OF FREQUENCY (5 ITEMS)
+           ========================================== -->
+      <section id="q-section-6" class="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 border border-indigo-50 overflow-hidden hidden">
+        <div class="bg-gradient-to-r from-teal-700 to-emerald-600 px-6 py-4 text-white flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-black text-lg">6</span>
+            <div>
+              <h2 class="text-lg md:text-xl font-black">السؤال السادس: أكمل الجدول من صندوق الكلمات (Adverbs of Frequency)</h2>
+              <p class="text-xs md:text-sm text-teal-100 font-semibold en-font">1 Look and complete the chart with an Adverb of Frequency.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="clearQ6()" class="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
+              إعادة الكلمات 🗑️
+            </button>
+            <span id="q6-badge" class="px-3 py-1.5 rounded-lg bg-white text-teal-700 font-black text-xs">0 / 5</span>
+          </div>
+        </div>
+
+        <div class="bg-teal-50/70 px-6 py-3 border-b border-teal-100 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm text-teal-950 font-semibold">
+          <div class="flex items-center gap-2">
+            <span>⭐</span>
+            <span><strong>طريقة الحل:</strong> انظر إلى عدد النجوم الحمراء في كل صف، ثم اسحب الكلمة المناسبة من الصندوق الوردي وأفلتها في الفراغ.</span>
+          </div>
+          <span class="text-teal-700 font-bold">🔊 اضغط على الكلمة لسماع النطق</span>
+        </div>
+
+        <div id="q6-feedback" class="hidden mx-6 mt-4 p-4 rounded-2xl border text-sm font-bold"></div>
+
+        <div class="p-6 md:p-8" dir="ltr">
+          <div class="inline-block bg-teal-800 text-white px-6 py-2 rounded-r-2xl font-black en-font text-xl mb-4">
+            Do you remember?
+          </div>
+          <h3 class="en-font text-lg md:text-xl font-bold text-slate-900 mb-6">
+            <span class="text-teal-700 font-black mr-2">1</span> Look and complete the chart with an Adverb of Frequency.
+          </h3>
+
+          <!-- Pink Rounded Word Box from Worksheet -->
+          <div id="q6-word-bank" class="max-w-2xl mx-auto mb-8 p-4 rounded-2xl border-2 border-pink-500 bg-pink-50/30 flex flex-wrap items-center justify-around gap-3">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- 5 Star Chart Rows -->
+          <div id="q6-list" class="space-y-4 max-w-xl mx-auto">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <button onclick="goToQuestion(5)" class="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition">
+              ➡️ السؤال السابق
+            </button>
+            <button onclick="checkQuestion(6)" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow transition">
+              تحقق من السؤال السادس ✔️
+            </button>
+          </div>
+          <button onclick="goToQuestion(7)" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow transition flex items-center gap-2">
+            <span>السؤال التالي (رتب الكلمات)</span>
+            <span>⬅️</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           QUESTION 7: ORDER THE WORDS TO MAKE SENTENCES (5 ITEMS)
+           ========================================== -->
+      <section id="q-section-7" class="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 border border-indigo-50 overflow-hidden hidden">
+        <div class="bg-gradient-to-r from-fuchsia-600 to-purple-600 px-6 py-4 text-white flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-black text-lg">7</span>
+            <div>
+              <h2 class="text-lg md:text-xl font-black">السؤال السابع: رتب الكلمات لتكوين جمل صحيحة</h2>
+              <p class="text-xs md:text-sm text-fuchsia-100 font-semibold en-font">2 Order the words to make sentences.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="clearQ7()" class="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
+              إعادة الترتيب 🗑️
+            </button>
+            <span id="q7-badge" class="px-3 py-1.5 rounded-lg bg-white text-fuchsia-700 font-black text-xs">0 / 5</span>
+          </div>
+        </div>
+
+        <div class="bg-fuchsia-50/70 px-6 py-3 border-b border-fuchsia-100 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm text-fuchsia-950 font-semibold">
+          <div class="flex items-center gap-2">
+            <span>🧩</span>
+            <span><strong>طريقة الحل:</strong> اضغط على الكلمات بالترتيب الصحيح لتكوين الجملة على السطر (ويمكنك الضغط على أي كلمة في السطر لإرجاعها).</span>
+          </div>
+          <span class="text-fuchsia-700 font-bold">🔊 اضغط على السماعة لسماع الجملة الصحيحة</span>
+        </div>
+
+        <div id="q7-feedback" class="hidden mx-6 mt-4 p-4 rounded-2xl border text-sm font-bold"></div>
+
+        <div class="p-6 md:p-8" dir="ltr">
+          <h3 class="en-font text-lg md:text-xl font-bold text-slate-900 mb-6">
+            <span class="text-teal-700 font-black mr-2">2</span> Order the words to make sentences.
+          </h3>
+
+          <div id="q7-list" class="space-y-6 max-w-4xl mx-auto">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <button onclick="goToQuestion(6)" class="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition">
+              ➡️ السؤال السابق
+            </button>
+            <button onclick="checkQuestion(7)" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow transition">
+              تحقق من السؤال السابع ✔️
+            </button>
+          </div>
+          <button onclick="goToQuestion(8)" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow transition flex items-center gap-2">
+            <span>السؤال التالي (جمل المقارنة)</span>
+            <span>⬅️</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           QUESTION 8: WRITE SENTENCES USING THE COMPARATIVE FORM (5 ITEMS)
+           ========================================== -->
+      <section id="q-section-8" class="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 border border-indigo-50 overflow-hidden hidden">
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4 text-white flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center font-black text-lg">8</span>
+            <div>
+              <h2 class="text-lg md:text-xl font-black">السؤال الثامن: اكتب الجمل باستخدام صيغة المقارنة (Comparative)</h2>
+              <p class="text-xs md:text-sm text-emerald-100 font-semibold en-font">3 Write sentences using the Comparative form.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="clearQ8()" class="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition">
+              مسح الجمل 🗑️
+            </button>
+            <span id="q8-badge" class="px-3 py-1.5 rounded-lg bg-white text-emerald-700 font-black text-xs">0 / 5</span>
+          </div>
+        </div>
+
+        <div class="bg-emerald-50/70 px-6 py-3 border-b border-emerald-100 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm text-emerald-950 font-semibold">
+          <div class="flex items-center gap-2">
+            <span>✍️</span>
+            <span><strong>طريقة الحل:</strong> اكتب الجملة باستخدام صيغة المقارنة (Comparative) في السطر المخصص، أو اضغط على الكلمات المساعدة أسفل كل سطر لتكوين الجملة بسهولة.</span>
+          </div>
+          <span class="text-emerald-700 font-bold">🔊 اضغط على السماعة لسماع الجملة</span>
+        </div>
+
+        <div id="q8-feedback" class="hidden mx-6 mt-4 p-4 rounded-2xl border text-sm font-bold"></div>
+
+        <div class="p-6 md:p-8" dir="ltr">
+          <h3 class="en-font text-lg md:text-xl font-bold text-slate-900 mb-6">
+            <span class="text-teal-700 font-black mr-2">3</span> Write sentences using the Comparative form.
+          </h3>
+
+          <div id="q8-list" class="space-y-6 max-w-4xl mx-auto">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <button onclick="goToQuestion(7)" class="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition">
+              ➡️ السؤال السابق
+            </button>
+            <button onclick="checkQuestion(8)" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow transition">
+              تحقق من السؤال الثامن ✔️
+            </button>
+          </div>
+          <button onclick="finishExam()" class="px-7 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-base shadow-lg shadow-emerald-200 transition flex items-center gap-2">
+            <span>إنهاء الاختبار واعتماد النتيجة النهائية</span>
+            <span>🎓</span>
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ==========================================
+       RESULTS, MOTIVATION & FEEDBACK MODAL
+       ========================================== -->
+  <div id="results-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto no-print">
+    <div class="bg-white rounded-3xl max-w-5xl w-full shadow-2xl border border-indigo-100 overflow-hidden my-8 max-h-[92vh] flex flex-col">
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-sky-500 p-6 text-white text-center relative">
+        <button onclick="closeResultsModal()" class="absolute top-4 left-4 w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white font-bold text-lg transition">
+          ✕
+        </button>
+        <div id="modal-trophy" class="text-6xl mb-2 animate-bounce">🏆</div>
+        <h2 id="modal-title" class="text-2xl md:text-3xl font-black mb-1">أحسنت! بارك الله في جهودك</h2>
+        <p class="text-indigo-100 font-semibold text-sm md:text-base">تقرير النتيجة النهائية والتغذية الراجعة التفصيلية لجميع الأسئلة الثمانية</p>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto space-y-6 flex-1">
+        <!-- Score Summary Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div class="bg-indigo-50 rounded-2xl p-4 border border-indigo-100">
+            <p class="text-xs font-bold text-indigo-500 mb-1">الدرجة الكلية</p>
+            <p id="modal-total-score" class="text-2xl md:text-3xl font-black text-indigo-950">75 / 75</p>
+          </div>
+          <div class="bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
+            <p class="text-xs font-bold text-emerald-600 mb-1">النسبة المئوية</p>
+            <p id="modal-percentage" class="text-2xl md:text-3xl font-black text-emerald-700">100%</p>
+          </div>
+          <div class="bg-amber-50 rounded-2xl p-4 border border-amber-100">
+            <p class="text-xs font-bold text-amber-600 mb-1">التقدير والنجوم</p>
+            <p id="modal-stars" class="text-xl md:text-2xl font-black text-amber-500">⭐⭐⭐⭐⭐</p>
+          </div>
+          <div class="bg-sky-50 rounded-2xl p-4 border border-sky-100">
+            <p class="text-xs font-bold text-sky-600 mb-1">اسم الطالب/ـة</p>
+            <p id="modal-student-name" class="text-base md:text-lg font-black text-sky-950 truncate">بطل المستقبل</p>
+          </div>
+        </div>
+
+        <!-- Motivational Box -->
+        <div class="p-5 rounded-2xl bg-gradient-to-r from-amber-50 via-yellow-50 to-emerald-50 border-2 border-amber-200 flex items-center gap-4">
+          <div class="text-4xl shrink-0">🌟</div>
+          <div>
+            <h3 class="font-black text-amber-950 text-base md:text-lg mb-1" id="modal-motivation-heading">رسالة تحفيزية</h3>
+            <p class="text-slate-700 font-semibold text-sm leading-relaxed" id="modal-motivation-text"></p>
+          </div>
+        </div>
+
+        <!-- Breakdown by Question -->
+        <div>
+          <h3 class="font-black text-indigo-950 text-lg mb-3 flex items-center gap-2">
+            <span>📊</span>
+            <span>تفصيل الدرجات حسب الأسئلة الثمانية:</span>
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="modal-questions-breakdown">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Detailed Feedback Table -->
+        <div>
+          <h3 class="font-black text-indigo-950 text-lg mb-3 flex items-center gap-2">
+            <span>📝</span>
+            <span>التغذية الراجعة ومراجعة الإجابات التفصيلية:</span>
+          </h3>
+          <div id="modal-detailed-feedback" class="space-y-4">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer Actions -->
+      <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="printExamResult()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <span>🖨️</span>
+            <span>طباعة النتيجة والتقرير</span>
+          </button>
+          <button onclick="reviewOnBoard()" class="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm shadow-md transition flex items-center gap-2">
+            <span>🔍</span>
+            <span>مراجعة الإجابات على لوحة الاختبار</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="resetAllExam(); closeResultsModal();" class="px-4 py-2.5 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-sm transition">
+            🔄 إعادة المحاولة
+          </button>
+          <button onclick="closeResultsModal()" class="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition">
+            إغلاق
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       PRINTABLE REPORT & CERTIFICATE VIEW
+       ========================================== -->
+  <div id="printable-report" class="hidden print-only p-6 max-w-5xl mx-auto">
+    <div class="border-4 border-indigo-700 rounded-3xl p-6 space-y-5">
+      <div class="flex items-center justify-between border-b-2 border-indigo-100 pb-4">
+        <div>
+          <h1 class="text-2xl font-black text-indigo-950">تقرير وشهادة نتيجة الاختبار التفاعلي للغة الإنجليزية</h1>
+          <p class="text-sm font-bold text-slate-600">Interactive English Assessment Report & Feedback (8 Questions)</p>
+        </div>
+        <div class="text-left text-xs font-bold text-slate-600">
+          <div id="print-date"></div>
+          <div class="text-indigo-700 font-black text-sm mt-1">درجة الاختبار النهائية</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-4 gap-3 text-center bg-slate-50 p-4 rounded-2xl border border-slate-200">
+        <div>
+          <div class="text-xs font-bold text-slate-500">اسم الطالب/ـة</div>
+          <div id="print-student-name" class="text-base font-black text-slate-900 mt-1">غير محدد</div>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-slate-500">المجموع الكلي</div>
+          <div id="print-total-score" class="text-xl font-black text-indigo-700 mt-1">75 / 75</div>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-slate-500">النسبة المئوية</div>
+          <div id="print-percentage" class="text-xl font-black text-emerald-700 mt-1">100%</div>
+        </div>
+        <div>
+          <div class="text-xs font-bold text-slate-500">التقدير العام</div>
+          <div id="print-grade" class="text-base font-black text-amber-600 mt-1">ممتاز ⭐⭐⭐⭐⭐</div>
+        </div>
+      </div>
+
+      <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-center">
+        <p id="print-motivation" class="text-sm font-bold text-amber-950"></p>
+      </div>
+
+      <div id="print-questions-summary" class="grid grid-cols-4 gap-2 text-center"></div>
+
+      <div id="print-detailed-tables" class="space-y-4 text-xs"></div>
+
+      <div class="pt-4 border-t border-slate-200 flex justify-between text-xs font-bold text-slate-500">
+        <span>تم استخراج التقرير آلياً من نظام الاختبار التفاعلي للغة الإنجليزية</span>
+        <span>مع تمنياتنا بدوام التفوق والنجاح 🌟</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       JAVASCRIPT LOGIC & DATA
+       ========================================== -->
+  <script>
+    /**************************************************************
+     * 1. HELPER GRAPHICS (DOTS, STARS & WORKSHEET ILLUSTRATIONS)
+     **************************************************************/
+    function renderFreqDots(pattern) {
+      // pattern e.g. '000', '100', '1110', '1111'
+      return `
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 align-middle">
+          ${pattern.split('').map(ch =>
+            ch === '1'
+              ? `<span class="w-3 h-3 rounded-full bg-slate-900 inline-block"></span>`
+              : `<span class="w-3 h-3 rounded-full border-2 border-slate-700 bg-white inline-block"></span>`
+          ).join('')}
+        </span>
+      `;
+    }
+
+    function renderStarRow(filledCount, hasCross) {
+      let html = '<div class="inline-flex items-center gap-1.5">';
+      for (let i = 0; i < 4; i++) {
+        if (i === 0 && hasCross) {
+          html += `
+            <div class="relative w-8 h-8 flex items-center justify-center">
+              <svg viewBox="0 0 24 24" class="w-7 h-7 fill-red-500 stroke-red-600 stroke-1">
+                <polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/>
+              </svg>
+              <span class="absolute inset-0 flex items-center justify-center text-slate-950 font-black text-xl leading-none">✕</span>
+            </div>
+          `;
+        } else if (i < filledCount) {
+          html += `
+            <svg viewBox="0 0 24 24" class="w-7 h-7 fill-red-500 stroke-red-600 stroke-1">
+              <polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/>
+            </svg>
+          `;
+        } else {
+          html += `
+            <svg viewBox="0 0 24 24" class="w-7 h-7 fill-white stroke-slate-400 stroke-1.5">
+              <polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/>
+            </svg>
+          `;
+        }
+      }
+      html += '</div>';
+      return html;
+    }
+
+    const Q2_SVGS = {
+      music: `
+        <svg viewBox="0 0 80 80" class="w-16 h-16 shrink-0">
+          <circle cx="40" cy="34" r="14" fill="#fde68a" stroke="#1e293b" stroke-width="2"/>
+          <path d="M24 34 A16 16 0 0 1 56 34" fill="none" stroke="#1e293b" stroke-width="4"/>
+          <rect x="20" y="28" width="6" height="12" rx="3" fill="#3b82f6" stroke="#1e293b" stroke-width="1.5"/>
+          <rect x="54" y="28" width="6" height="12" rx="3" fill="#3b82f6" stroke="#1e293b" stroke-width="1.5"/>
+          <path d="M28 70 L32 48 L48 48 L52 70 Z" fill="#f472b6" stroke="#1e293b" stroke-width="2"/>
+          <text x="62" y="22" font-size="14">🎵</text>
+        </svg>
+      `,
+      spaghetti: `
+        <svg viewBox="0 0 90 70" class="w-20 h-14 shrink-0">
+          <ellipse cx="45" cy="48" rx="38" ry="14" fill="#e2e8f0" stroke="#1e293b" stroke-width="2"/>
+          <path d="M20 44 Q45 20 70 44 Q55 54 25 46 Q45 30 65 42" fill="#fde047" stroke="#ca8a04" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="35" cy="38" r="5" fill="#dc2626"/>
+          <circle cx="52" cy="36" r="5" fill="#dc2626"/>
+          <circle cx="44" cy="44" r="5" fill="#dc2626"/>
+        </svg>
+      `,
+      football: `
+        <svg viewBox="0 0 90 70" class="w-20 h-14 shrink-0">
+          <circle cx="28" cy="20" r="9" fill="#ffffff" stroke="#1e293b" stroke-width="2"/>
+          <line x1="28" y1="29" x2="24" y2="48" stroke="#1e293b" stroke-width="2.5"/>
+          <line x1="24" y1="48" x2="14" y2="62" stroke="#1e293b" stroke-width="2.5"/>
+          <line x1="24" y1="48" x2="48" y2="44" stroke="#1e293b" stroke-width="2.5"/>
+          <line x1="26" y1="36" x2="14" y2="30" stroke="#1e293b" stroke-width="2.5"/>
+          <line x1="26" y1="36" x2="42" y2="30" stroke="#1e293b" stroke-width="2.5"/>
+          <circle cx="68" cy="38" r="12" fill="#ffffff" stroke="#1e293b" stroke-width="2"/>
+          <polygon points="68,32 73,36 71,42 65,42 63,36" fill="#1e293b"/>
+        </svg>
+      `,
+      piano: `
+        <svg viewBox="0 0 90 70" class="w-20 h-14 shrink-0">
+          <rect x="14" y="28" width="62" height="16" rx="2" fill="#1e293b"/>
+          <rect x="16" y="38" width="58" height="6" fill="#ffffff"/>
+          <line x1="22" y1="44" x2="22" y2="64" stroke="#1e293b" stroke-width="3"/>
+          <line x1="68" y1="44" x2="68" y2="64" stroke="#1e293b" stroke-width="3"/>
+          <circle cx="45" cy="20" r="7" fill="#fed7aa" stroke="#1e293b" stroke-width="1.8"/>
+          <rect x="38" y="28" width="14" height="22" rx="3" fill="#3b82f6" stroke="#1e293b" stroke-width="1.8"/>
+        </svg>
+      `,
+      cat: `
+        <svg viewBox="0 0 90 70" class="w-20 h-14 shrink-0">
+          <ellipse cx="26" cy="56" rx="14" ry="5" fill="#93c5fd" stroke="#1e293b" stroke-width="1.8"/>
+          <circle cx="46" cy="42" r="11" fill="#f8fafc" stroke="#1e293b" stroke-width="1.8"/>
+          <polygon points="38,34 40,24 46,32" fill="#f8fafc" stroke="#1e293b" stroke-width="1.8"/>
+          <polygon points="54,34 52,24 46,32" fill="#f8fafc" stroke="#1e293b" stroke-width="1.8"/>
+          <ellipse cx="64" cy="46" rx="14" ry="10" fill="#f8fafc" stroke="#1e293b" stroke-width="1.8"/>
+          <path d="M76 42 Q84 26 78 20" fill="none" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      `,
+      car: `
+        <svg viewBox="0 0 95 65" class="w-20 h-14 shrink-0">
+          <path d="M18 36 L30 20 L66 20 L78 36 L86 38 L86 50 L10 50 L10 38 Z" fill="#f87171" stroke="#1e293b" stroke-width="2"/>
+          <polygon points="33,23 48,23 48,35 23,35" fill="#e0f2fe" stroke="#1e293b" stroke-width="1.5"/>
+          <polygon points="52,23 64,23 72,35 52,35" fill="#e0f2fe" stroke="#1e293b" stroke-width="1.5"/>
+          <circle cx="26" cy="50" r="8" fill="#334155" stroke="#1e293b" stroke-width="2"/>
+          <circle cx="26" cy="50" r="3.5" fill="#f8fafc"/>
+          <circle cx="68" cy="50" r="8" fill="#334155" stroke="#1e293b" stroke-width="2"/>
+          <circle cx="68" cy="50" r="3.5" fill="#f8fafc"/>
+        </svg>
+      `,
+      tv: `
+        <svg viewBox="0 0 90 70" class="w-20 h-14 shrink-0">
+          <rect x="8" y="10" width="74" height="50" rx="8" fill="#f8fafc" stroke="#1e293b" stroke-width="2"/>
+          <rect x="14" y="18" width="8" height="32" rx="2" fill="#334155"/>
+          <circle cx="44" cy="30" r="6" fill="#fde68a" stroke="#1e293b" stroke-width="1.5"/>
+          <circle cx="58" cy="28" r="6.5" fill="#fed7aa" stroke="#1e293b" stroke-width="1.5"/>
+          <circle cx="70" cy="32" r="5.5" fill="#fde68a" stroke="#1e293b" stroke-width="1.5"/>
+          <rect x="36" y="38" width="40" height="14" rx="4" fill="#a78bfa" stroke="#1e293b" stroke-width="1.5"/>
+        </svg>
+      `
+    };
+
+    /**************************************************************
+     * 2. EXAM DATA STRUCTURE (ALL 8 QUESTIONS - 75 ITEMS TOTAL)
+     **************************************************************/
+    const EXAM_DATA = {
+      // Question 1: Adverbs of frequency (Part I: 8 items, Part II: 5 items = 13 items)
+      q1: {
+        wordBank: [
+          { word: 'never',     dots: '000',  ar: 'أبداً (0%)' },
+          { word: 'sometimes', dots: '100',  ar: 'أحياناً (30%)' },
+          { word: 'usually',   dots: '1110', ar: 'عادةً (75%)' },
+          { word: 'always',    dots: '1111', ar: 'دائماً (100%)' }
+        ],
+        part1: [
+          { id: 1, prefix: '1. I',         suffix: 'play with my friends at break time.', dots: '1110', correct: 'usually',   ar: 'أنا عادةً ألعب مع أصدقائي في وقت الفسحة' },
+          { id: 2, prefix: '2. She',       suffix: 'does her homework after dinner.',     dots: '1111', correct: 'always',    ar: 'هي دائماًؤدي واجبها بعد العشاء' },
+          { id: 3, prefix: '3. I',         suffix: 'make my bed before breakfast.',       dots: '100',  correct: 'sometimes', ar: 'أنا أحياناً أرتب سريري قبل الإفطار' },
+          { id: 4, prefix: '4. He',        suffix: 'eats noodles for lunch.',             dots: '000',  correct: 'never',     ar: 'هو أبداً لا يأكل النودلز للغداء' },
+          { id: 5, prefix: '5. I',         suffix: 'help my mom after dinner.',           dots: '100',  correct: 'sometimes', ar: 'أنا أحياناً أساعد أمي بعد العشاء' },
+          { id: 6, prefix: '6. My sister', suffix: 'goes to bed at 10:00.',               dots: '1110', correct: 'usually',   ar: 'أختي عادةً تذهب للنوم الساعة 10:00' },
+          { id: 7, prefix: '7. They',      suffix: 'go shopping on Saturdays.',           dots: '1111', correct: 'always',    ar: 'هم دائماً يذهبون للتسوق أيام السبت' },
+          { id: 8, prefix: '8. Lisa',      suffix: 'goes swimming on Mondays.',           dots: '000',  correct: 'never',     ar: 'ليزا أبداً لا تذهب للسباحة أيام الإثنين' }
+        ],
+        part2: [
+          { id: 1, prefix: '1. We',           suffix: 'to the library on Sunday.',     options: ['often go', 'go often'],                   correct: 'often go',          ar: 'ظرف التكرار يأتي قبل الفعل الأساسي (often go)' },
+          { id: 2, prefix: '2. Tom',          suffix: 'cartoons on TV.',               options: ['watches sometimes', 'sometimes watches'], correct: 'sometimes watches', ar: 'ظرف التكرار يأتي قبل الفعل الأساسي (sometimes watches)' },
+          { id: 3, prefix: '3. I',            suffix: 'my homework before school.',    options: ['always do', 'do always'],                 correct: 'always do',         ar: 'ظرف التكرار يأتي قبل الفعل الأساسي (always do)' },
+          { id: 4, prefix: '4. Sally',        suffix: 'cakes with her sister.',        options: ['makes sometimes', 'sometimes makes'],     correct: 'sometimes makes',   ar: 'ظرف التكرار يأتي قبل الفعل الأساسي (sometimes makes)' },
+          { id: 5, prefix: '5. Her children', suffix: 'video games.',                  options: ['never play', 'play never'],               correct: 'never play',        ar: 'ظرف التكرار يأتي قبل الفعل الأساسي (never play)' }
+        ]
+      },
+
+      // Question 2: Am - Is - Are (7 items)
+      q2: {
+        wordBank: ['am', 'is', 'are'],
+        items: [
+          { id: 1, prefix: '1. I',       suffix: 'listening to music.', svg: 'music',     correct: 'am',  ar: 'الضمير I يأخذ am' },
+          { id: 2, prefix: '2. She',     suffix: 'eating spaghetti.',   svg: 'spaghetti', correct: 'is',  ar: 'الضمير المفرد She يأخذ is' },
+          { id: 3, prefix: '3. They',    suffix: 'playing football.',   svg: 'football',  correct: 'are', ar: 'ضمير الجمع They يأخذ are' },
+          { id: 4, prefix: '4. He',      suffix: 'playing the piano.',  svg: 'piano',     correct: 'is',  ar: 'الضمير المفرد He يأخذ is' },
+          { id: 5, prefix: '5. The cat', suffix: 'drinking milk.',      svg: 'cat',       correct: 'is',  ar: 'الاسم المفرد The cat يأخذ is' },
+          { id: 6, prefix: '6. My mum',  suffix: 'driving a car.',      svg: 'car',       correct: 'is',  ar: 'الاسم المفرد My mum يأخذ is' },
+          { id: 7, prefix: '7. We',      suffix: 'watching TV.',        svg: 'tv',        correct: 'are', ar: 'ضمير الجمع We يأخذ are' }
+        ]
+      },
+
+      // Question 3: PRESENT PROGRESSIVE - Circle the correct answer (20 items)
+      q3: [
+        { id: 1,  sentence: '1. She ......................... to school now.',                  options: ['go', 'goes', 'is going'],                        correct: 'is going' },
+        { id: 2,  sentence: '2. We ......................... to the park now.',                 options: ['are not going', "don't go", "didn't go"],        correct: 'are not going' },
+        { id: 3,  sentence: '3. ........... Omar ......................... a picture now?',     options: ['Do / draw', 'Does / draw', 'Is / drawing'],      correct: 'Is / drawing' },
+        { id: 4,  sentence: '4. The baby ......................... .',                          options: ['is sleeping', 'sleeps', 'sleep'],                correct: 'is sleeping' },
+        { id: 5,  sentence: '5. Listen! She ......................... a song.',                 options: ['sings', 'sing', 'is singing'],                   correct: 'is singing' },
+        { id: 6,  sentence: '6. They ......................... football today.',                options: ["aren't play", "aren't playing", "don't playing"], correct: "aren't playing" },
+        { id: 7,  sentence: '7. I ......................... my homework right now.',            options: ['am doing', 'does', 'do'],                        correct: 'am doing' },
+        { id: 8,  sentence: '8. ........... the children .........................?',           options: ['Are / play', 'Are / playing', 'Do / plays'],     correct: 'Are / playing' },
+        { id: 9,  sentence: '9. He ......................... breakfast now.',                   options: ['eats', 'is eating', 'eat'],                      correct: 'is eating' },
+        { id: 10, sentence: '10. Right now, I ......................... in my room.',           options: ['am', 'be', 'am sitting'],                        correct: 'am sitting' },
+        { id: 11, sentence: '11. They ......................... TV at the moment.',             options: ['are watching', 'watch', 'watches'],              correct: 'are watching' },
+        { id: 12, sentence: '12. She ......................... in the kitchen.',                options: ["isn't cooking", "doesn't cook", 'not cook'],     correct: "isn't cooking" },
+        { id: 13, sentence: '13. ........... you ......................... English now?',       options: ['Do / study', 'Are / studying', 'Is / study'],    correct: 'Are / studying' },
+        { id: 14, sentence: '14. Look! The boys ......................... football.',           options: ['play', 'are playing', 'plays'],                  correct: 'are playing' },
+        { id: 15, sentence: '15. He ......................... his book now.',                   options: ["don't read", "didn't read", "isn't reading"],    correct: "isn't reading" },
+        { id: 16, sentence: '16. Now, my father ......................... coffee in the garden.', options: ['drinks', 'is drinking', 'drink'],              correct: 'is drinking' },
+        { id: 17, sentence: '17. ........... she ......................... to music?',          options: ['Does / listen', 'Is / listening', 'Are / listen'], correct: 'Is / listening' },
+        { id: 18, sentence: '18. I ......................... to music now.',                    options: ["don't listen", 'am not listening', "didn't listen"], correct: 'am not listening' },
+        { id: 19, sentence: '19. At the moment, we ......................... our lessons.',     options: ['study', 'are studying', 'studies'],              correct: 'are studying' },
+        { id: 20, sentence: '20. ........... they ......................... football?',         options: ['Is / play', 'Are / playing', 'Do / play'],       correct: 'Are / playing' }
+      ],
+
+      // Question 4: WAS and WERE (10 items)
+      q4: {
+        wordBank: ['was', 'were'],
+        items: [
+          { id: 1,  prefix: '1. Yesterday, I', suffix: 'very tired.',                correct: 'was',  ar: 'الضمير I في الماضي يأخذ was' },
+          { id: 2,  prefix: '2. They',         suffix: 'in the park last Friday.',   correct: 'were', ar: 'ضمير الجمع They يأخذ were' },
+          { id: 3,  prefix: '3. She',          suffix: 'at home yesterday evening.', correct: 'was',  ar: 'الضمير المفرد She يأخذ was' },
+          { id: 4,  prefix: '4. We',           suffix: 'happy with the game.',       correct: 'were', ar: 'ضمير الجمع We يأخذ were' },
+          { id: 5,  prefix: '5. Omar',         suffix: 'sick last week.',            correct: 'was',  ar: 'الاسم المفرد Omar يأخذ was' },
+          { id: 6,  prefix: '6. The books',    suffix: 'on the table.',              correct: 'were', ar: 'الاسم الجمع The books يأخذ were' },
+          { id: 7,  prefix: '7. It',           suffix: 'cold yesterday.',            correct: 'was',  ar: 'الضمير المفرد It يأخذ was' },
+          { id: 8,  prefix: '8. You',          suffix: 'late for school.',           correct: 'were', ar: 'الضمير You يأخذ were' },
+          { id: 9,  prefix: '9. My friends',   suffix: 'in the classroom.',          correct: 'were', ar: 'الاسم الجمع My friends يأخذ were' },
+          { id: 10, prefix: '10. The dog',     suffix: 'very noisy last night.',     correct: 'was',  ar: 'الاسم المفرد The dog يأخذ was' }
+        ]
+      },
+
+      // Question 5: WASN'T and WEREN'T (10 items)
+      q5: {
+        wordBank: ["wasn't", "weren't"],
+        items: [
+          { id: 1,  prefix: '1. I',          suffix: 'at school yesterday because I was sick.',         correct: "wasn't",  ar: 'الضمير I في النفي يأخذ wasn\'t' },
+          { id: 2,  prefix: '2. They',       suffix: 'in the park last night; they were at home.',      correct: "weren't", ar: 'الضمير They في النفي يأخذ weren\'t' },
+          { id: 3,  prefix: '3. She',        suffix: 'happy with the test result.',                     correct: "wasn't",  ar: 'الضمير She في النفي يأخذ wasn\'t' },
+          { id: 4,  prefix: '4. We',         suffix: 'late for class yesterday.',                       correct: "weren't", ar: 'الضمير We في النفي يأخذ weren\'t' },
+          { id: 5,  prefix: '5. Omar',       suffix: 'at the party on Saturday.',                       correct: "wasn't",  ar: 'الاسم المفرد Omar يأخذ wasn\'t' },
+          { id: 6,  prefix: '6. The shops',  suffix: 'open on Friday evening.',                         correct: "weren't", ar: 'الاسم الجمع The shops يأخذ weren\'t' },
+          { id: 7,  prefix: '7. It',         suffix: 'very hot yesterday.',                             correct: "wasn't",  ar: 'الضمير It يأخذ wasn\'t' },
+          { id: 8,  prefix: '8. You',        suffix: 'in the classroom when the teacher arrived.',      correct: "weren't", ar: 'الضمير You يأخذ weren\'t' },
+          { id: 9,  prefix: '9. My friends', suffix: 'ready for the match.',                            correct: "weren't", ar: 'الاسم الجمع My friends يأخذ weren\'t' },
+          { id: 10, prefix: '10. The car',   suffix: 'clean yesterday; it was dirty.',                  correct: "wasn't",  ar: 'الاسم المفرد The car يأخذ wasn\'t' }
+        ]
+      },
+
+      // Question 6: Look and complete the chart with an Adverb of Frequency (5 items - ALL start empty)
+      q6: {
+        wordBank: ['always', 'never', 'often', 'sometimes', 'usually'],
+        items: [
+          { id: 1, stars: 4, cross: false, correct: 'always',    ar: '4 نجوم كاملة = دائماً (always)' },
+          { id: 2, stars: 3, cross: false, correct: 'usually',   ar: '3 نجوم = عادةً (usually)' },
+          { id: 3, stars: 2, cross: false, correct: 'often',     ar: 'نجمتان = غالباً (often)' },
+          { id: 4, stars: 1, cross: false, correct: 'sometimes', ar: 'نجمة واحدة = أحياناً (sometimes)' },
+          { id: 5, stars: 0, cross: true,  correct: 'never',     ar: 'علامة X على النجمة = أبداً (never)' }
+        ]
+      },
+
+      // Question 7: Order the words to make sentences (5 items - ALL start empty)
+      q7: [
+        {
+          id: 1,
+          prompt: "usually / I / on / days / . / school / get up / at seven o'clock",
+          chunks: ["usually", "I", "on", "days", ".", "school", "get up", "at seven o'clock"],
+          correct: "I usually get up at seven o'clock on school days.",
+          ar: "أنا عادةً أستيقظ في الساعة السابعة في أيام المدرسة."
+        },
+        {
+          id: 2,
+          prompt: "bed / We always / go to / read our / we / . / new / before / comic books",
+          chunks: ["bed", "We always", "go to", "read our", "we", ".", "new", "before", "comic books"],
+          correct: "We always read our new comic books before we go to bed.",
+          ar: "نحن دائماً نقرأ قصصنا المصورة الجديدة قبل أن نذهب إلى النوم."
+        },
+        {
+          id: 3,
+          prompt: "Saturdays / our / house / . / My / sometimes / lunch / have / at / on / aunt and uncle",
+          chunks: ["Saturdays", "our", "house", ".", "My", "sometimes", "lunch", "have", "at", "on", "aunt and uncle"],
+          correct: "My aunt and uncle sometimes have lunch at our house on Saturdays.",
+          ar: "عمتي وعمي أحياناً يتناولون الغداء في منزلنا أيام السبت."
+        },
+        {
+          id: 4,
+          prompt: "often / My / go / to / weekends / . / the / park / friends / on",
+          chunks: ["often", "My", "go", "to", "weekends", ".", "the", "park", "friends", "on"],
+          correct: "My friends often go to the park on weekends.",
+          ar: "أصدقائي غالباً يذهبون إلى الحديقة في عطلة نهاية الأسبوع."
+        },
+        {
+          id: 5,
+          prompt: "my / homework / the / I / morning / . / never / in / do",
+          chunks: ["my", "homework", "the", "I", "morning", ".", "never", "in", "do"],
+          correct: "I never do my homework in the morning.",
+          ar: "أنا أبداً لا أؤدي واجبي المنزلي في الصباح."
+        }
+      ],
+
+      // Question 8: Write sentences using the Comparative form (5 items - ALL start empty)
+      q8: [
+        {
+          id: 1,
+          prompt: "My / sister / short / me",
+          helperWords: ["than", "sister", "me.", "shorter", "My", "is"],
+          accepted: ["My sister is shorter than me."],
+          displayCorrect: "My sister is shorter than me.",
+          ar: "أختي أقصر مني."
+        },
+        {
+          id: 2,
+          prompt: "I / think / math / difficult / English",
+          helperWords: ["difficult", "math", "than", "I", "English.", "is", "think", "more"],
+          accepted: ["I think math is more difficult than English."],
+          displayCorrect: "I think math is more difficult than English.",
+          ar: "أعتقد أن الرياضيات أصعب من اللغة الإنجليزية."
+        },
+        {
+          id: 3,
+          prompt: "Pandas / friendly / bears",
+          helperWords: ["than", "friendlier", "bears.", "Pandas", "are"],
+          accepted: ["Pandas are friendlier than bears.", "Pandas are more friendly than bears."],
+          displayCorrect: "Pandas are friendlier than bears.",
+          ar: "حيوانات الباندا أكثر ودّاً من الدببة."
+        },
+        {
+          id: 4,
+          prompt: "My kitten / big / my mom’s cat",
+          helperWords: ["bigger", "cat.", "My", "than", "is", "mom's", "kitten", "my"],
+          accepted: ["My kitten is bigger than my mom's cat."],
+          displayCorrect: "My kitten is bigger than my mom's cat.",
+          ar: "قطتي الصغيرة أكبر من قطة أمي."
+        },
+        {
+          id: 5,
+          prompt: "Parrots / intelligent / snails",
+          helperWords: ["intelligent", "snails.", "are", "Parrots", "than", "more"],
+          accepted: ["Parrots are more intelligent than snails."],
+          displayCorrect: "Parrots are more intelligent than snails.",
+          ar: "الببغاوات أكثر ذكاءً من الحلزونات."
+        }
+      ]
+    };
+
+    /**************************************************************
+     * 3. STATE MANAGEMENT
+     **************************************************************/
+    let currentQuestion = 1;
+    let showAllMode = false;
+    let soundEnabled = true;
+    let examFinished = false;
+
+    const userState = {
+      q1_p1: { 1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: '' },
+      q1_p2: { 1: '', 2: '', 3: '', 4: '', 5: '' },
+      q2: { 1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '' },
+      q3: {
+        1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: '', 9: '', 10: '',
+        11: '', 12: '', 13: '', 14: '', 15: '', 16: '', 17: '', 18: '', 19: '', 20: ''
+      },
+      q4: { 1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: '', 9: '', 10: '' },
+      q5: { 1: '', 2: '', 3: '', 4: '', 5: '', 6: '', 7: '', 8: '', 9: '', 10: '' },
+      q6: { 1: '', 2: '', 3: '', 4: '', 5: '' },
+      q7: { 1: [], 2: [], 3: [], 4: [], 5: [] }, // array of chunk indices
+      q8: { 1: '', 2: '', 3: '', 4: '', 5: '' },
+      checked: { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: false, 8: false }
+    };
+
+    let selectedQ1Word = null;
+    let selectedQ2Word = null;
+    let selectedQ4Word = null;
+    let selectedQ5Word = null;
+    let selectedQ6Word = null;
+
+    /**************************************************************
+     * 4. SOUND EFFECTS & SPEECH SYNTHESIS
+     **************************************************************/
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function playTone(type) {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new AudioCtx();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(680, now + 0.08);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === 'connect') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(740, now + 0.14);
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
+          osc.start(now);
+          osc.stop(now + 0.14);
+        } else if (type === 'correct') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.1);
+          osc.frequency.setValueAtTime(783.99, now + 0.2);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.38);
+          osc.start(now);
+          osc.stop(now + 0.38);
+        } else if (type === 'wrong') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.linearRampToValueAtTime(170, now + 0.25);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'fanfare') {
+          const notes = [523.25, 659.25, 783.99, 1046.5];
+          notes.forEach((freq, idx) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(freq, now + idx * 0.12);
+            g.gain.setValueAtTime(0.18, now + idx * 0.12);
+            g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.12 + 0.3);
+            o.start(now + idx * 0.12);
+            o.stop(now + idx * 0.12 + 0.3);
+          });
+        }
+      } catch (e) {}
+    }
+
+    function speakText(text) {
+      if (!soundEnabled || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const cleaned = String(text).replace(/\.{2,}|_+/g, ' ').replace(/\bsixth\b/gi, 'sikth');
+      const utter = new SpeechSynthesisUtterance(cleaned);
+      utter.lang = 'en-US';
+      utter.rate = 0.88;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('sound-icon').textContent = soundEnabled ? '🔊' : '🔇';
+    }
+
+    function onZoneDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('drag-over');
+    }
+
+    function onZoneDragLeave(e) {
+      e.currentTarget.classList.remove('drag-over');
+    }
+
+    function onWordDragStart(e, word) {
+      e.dataTransfer.setData('text/plain', word);
+      speakText(word);
+    }
+
+    function normalizeSentence(str) {
+      return String(str || '')
+        .trim()
+        .replace(/[’‘]/g, "'")
+        .replace(/\s+/g, ' ')
+        .replace(/\s+\./g, '.')
+        .replace(/\.+$/, '')
+        .toLowerCase();
+    }
+
+    /**************************************************************
+     * 5. INITIALIZATION
+     **************************************************************/
+    window.addEventListener('DOMContentLoaded', () => {
+      shuffleQ8HelperWords();
+      renderQuestion1();
+      renderQuestion2();
+      renderQuestion3();
+      renderQuestion4();
+      renderQuestion5();
+      renderQuestion6();
+      renderQuestion7();
+      renderQuestion8();
+      updateDashboard();
+    });
+
+    /**************************************************************
+     * 6. QUESTION 1: ADVERBS OF FREQUENCY (13 ITEMS)
+     **************************************************************/
+    function renderQuestion1() {
+      const bankEl = document.getElementById('q1-word-bank');
+      const p1El = document.getElementById('q1-part1-list');
+      const p2El = document.getElementById('q1-part2-list');
+
+      bankEl.innerHTML = EXAM_DATA.q1.wordBank.map(item => {
+        const isSelected = selectedQ1Word === item.word;
+        return `
+          <div class="flex flex-col items-center gap-1.5">
+            ${renderFreqDots(item.dots)}
+            <div draggable="true"
+                 ondragstart="onWordDragStart(event, '${item.word}')"
+                 onclick="onQ1WordClick('${item.word}')"
+                 class="word-chip en-font w-full py-2.5 px-4 rounded-xl font-black text-lg text-center border-2 select-none shadow-sm
+                 ${isSelected ? 'selected-chip' : 'bg-amber-600/90 text-white border-amber-800 hover:bg-amber-600'}">
+              ${item.word}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      p1El.innerHTML = EXAM_DATA.q1.part1.map(item => {
+        const val = userState.q1_p1[item.id] || '';
+        const isCorrect = val.toLowerCase() === item.correct.toLowerCase();
+        let slotClass = 'border-amber-400 bg-amber-50/50 text-amber-950 hover:border-amber-600';
+        let fbHtml = '';
+
+        if (userState.checked[1]) {
+          if (isCorrect) {
+            slotClass = 'border-emerald-600 bg-emerald-50 text-emerald-900';
+            fbHtml = `<span class="text-xs font-bold text-emerald-700 mr-2" dir="rtl">✅ صحيحة</span>`;
+          } else {
+            slotClass = 'border-rose-500 bg-rose-50 text-rose-900';
+            fbHtml = `<span class="text-xs font-bold text-rose-700 mr-2" dir="rtl">❌ الصحيح: <u class="en-font">${item.correct}</u></span>`;
+          }
+        } else if (val) {
+          slotClass = 'border-indigo-600 bg-indigo-50 text-indigo-950';
+        }
+
+        const fullSpeech = `${item.prefix.replace(/^\d+\.\s*/, '')} ${item.correct} ${item.suffix}`;
+
+        return `
+          <div class="p-3.5 rounded-2xl border border-slate-200 bg-white flex flex-wrap items-center justify-between gap-2 shadow-sm">
+            <div class="flex flex-wrap items-center gap-2 en-font text-base md:text-lg font-bold text-slate-900">
+              <button type="button" onclick="speakText('${fullSpeech.replace(/'/g, "\\'")}')" class="w-7 h-7 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-800 flex items-center justify-center text-xs">🔊</button>
+              <span>${item.prefix}</span>
+              <span ondragover="onZoneDragOver(event)"
+                    ondragleave="onZoneDragLeave(event)"
+                    ondrop="onQ1Drop(event, ${item.id})"
+                    onclick="onQ1SlotClick(${item.id})"
+                    class="drop-zone inline-flex items-center justify-center min-w-[140px] px-3 py-1 rounded-xl border-2 border-dashed cursor-pointer ${slotClass}">
+                ${val
+                  ? `<span class="font-black">${val}</span><span class="ml-2 text-xs text-rose-500 font-bold">✕</span>`
+                  : `<span class="text-xs text-slate-400 font-semibold" dir="rtl">ضع الكلمة هنا</span>`
+                }
+              </span>
+              <span>${item.suffix}</span>
+              ${renderFreqDots(item.dots)}
+            </div>
+            <div>${fbHtml}</div>
+          </div>
+        `;
+      }).join('');
+
+      p2El.innerHTML = EXAM_DATA.q1.part2.map(item => {
+        const chosen = userState.q1_p2[item.id] || '';
+        const isCorrect = chosen === item.correct;
+        let fbHtml = '';
+
+        if (userState.checked[1]) {
+          if (isCorrect) {
+            fbHtml = `<div class="text-xs font-bold text-emerald-700 mt-1.5" dir="rtl">✅ إجابة صحيحة (${item.ar})</div>`;
+          } else {
+            fbHtml = `<div class="text-xs font-bold text-rose-700 mt-1.5" dir="rtl">❌ الصحيح: <span class="en-font underline">${item.correct}</span> (${item.ar})</div>`;
+          }
+        }
+
+        const btns = item.options.map((opt, idx) => {
+          const letter = idx === 0 ? 'A.' : 'B.';
+          const isSelected = chosen === opt;
+          let btnStyle = 'border-slate-300 bg-slate-50 text-slate-800 hover:bg-indigo-50 hover:border-indigo-300';
+          if (userState.checked[1]) {
+            if (isSelected && isCorrect) btnStyle = 'border-emerald-600 bg-emerald-100 text-emerald-900';
+            else if (isSelected && !isCorrect) btnStyle = 'border-rose-600 bg-rose-100 text-rose-900';
+            else if (opt === item.correct) btnStyle = 'border-emerald-500 border-dashed bg-emerald-50/50 text-emerald-800';
+          } else if (isSelected) {
+            btnStyle = 'border-indigo-600 bg-indigo-600 text-white shadow-sm';
+          }
+          return `
+            <button type="button"
+                    onclick="onQ1Part2Select(${item.id}, '${opt}')"
+                    class="en-font px-4 py-2 rounded-xl border-2 font-bold text-sm md:text-base transition ${btnStyle}">
+              ${letter} ${opt}
+            </button>
+          `;
+        }).join('');
+
+        return `
+          <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50">
+            <div class="en-font text-base md:text-lg font-bold text-slate-900 mb-2.5">
+              ${item.prefix} <span class="text-indigo-600 underline font-black px-2">${chosen || '....................'}</span> ${item.suffix}
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              ${btns}
+            </div>
+            ${fbHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function onQ1WordClick(word) {
+      playTone('click');
+      speakText(word);
+      selectedQ1Word = (selectedQ1Word === word) ? null : word;
+      renderQuestion1();
+    }
+
+    function onQ1SlotClick(slotId) {
+      if (selectedQ1Word) {
+        userState.q1_p1[slotId] = selectedQ1Word;
+        userState.checked[1] = false;
+        document.getElementById('q1-feedback').classList.add('hidden');
+        playTone('connect');
+        renderQuestion1();
+        updateDashboard();
+      } else if (userState.q1_p1[slotId]) {
+        userState.q1_p1[slotId] = '';
+        userState.checked[1] = false;
+        document.getElementById('q1-feedback').classList.add('hidden');
+        playTone('click');
+        renderQuestion1();
+        updateDashboard();
+      }
+    }
+
+    function onQ1Drop(e, slotId) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      const word = e.dataTransfer.getData('text/plain');
+      if (!word) return;
+      userState.q1_p1[slotId] = word;
+      userState.checked[1] = false;
+      document.getElementById('q1-feedback').classList.add('hidden');
+      playTone('connect');
+      renderQuestion1();
+      updateDashboard();
+    }
+
+    function onQ1Part2Select(id, opt) {
+      playTone('connect');
+      speakText(opt);
+      userState.q1_p2[id] = (userState.q1_p2[id] === opt) ? '' : opt;
+      userState.checked[1] = false;
+      document.getElementById('q1-feedback').classList.add('hidden');
+      renderQuestion1();
+      updateDashboard();
+    }
+
+    function clearQ1() {
+      Object.keys(userState.q1_p1).forEach(k => userState.q1_p1[k] = '');
+      Object.keys(userState.q1_p2).forEach(k => userState.q1_p2[k] = '');
+      selectedQ1Word = null;
+      userState.checked[1] = false;
+      document.getElementById('q1-feedback').classList.add('hidden');
+      playTone('click');
+      renderQuestion1();
+      updateDashboard();
+    }
+
+    /**************************************************************
+     * 7. QUESTION 2: AM - IS - ARE (7 ITEMS)
+     **************************************************************/
+    function renderQuestion2() {
+      const bankEl = document.getElementById('q2-word-bank');
+      const listEl = document.getElementById('q2-list');
+
+      bankEl.innerHTML = EXAM_DATA.q2.wordBank.map(word => {
+        const isSelected = selectedQ2Word === word;
+        return `
+          <div draggable="true"
+               ondragstart="onWordDragStart(event, '${word}')"
+               onclick="onQ2WordClick('${word}')"
+               class="word-chip en-font px-6 py-2.5 rounded-2xl font-black text-xl border-2 select-none shadow-sm
+               ${isSelected ? 'selected-chip' : 'bg-white text-sky-900 border-sky-300 hover:bg-sky-100'}">
+            ${word}
+          </div>
+        `;
+      }).join('');
+
+      listEl.innerHTML = EXAM_DATA.q2.items.map(item => {
+        const val = userState.q2[item.id] || '';
+        const isCorrect = val.toLowerCase() === item.correct.toLowerCase();
+        let slotClass = 'border-sky-400 bg-sky-50/60 text-sky-950 hover:border-sky-600';
+        let fbHtml = '';
+
+        if (userState.checked[2]) {
+          if (isCorrect) {
+            slotClass = 'border-emerald-600 bg-emerald-50 text-emerald-900';
+            fbHtml = `<div class="text-xs font-bold text-emerald-700 mt-1" dir="rtl">✅ إجابة صحيحة (${item.ar})</div>`;
+          } else {
+            slotClass = 'border-rose-500 bg-rose-50 text-rose-900';
+            fbHtml = `<div class="text-xs font-bold text-rose-700 mt-1" dir="rtl">❌ الصحيح: <span class="en-font underline font-black">${item.correct}</span> (${item.ar})</div>`;
+          }
+        } else if (val) {
+          slotClass = 'border-indigo-600 bg-indigo-50 text-indigo-950';
+        }
+
+        const fullSentence = `${item.prefix.replace(/^\d+\.\s*/, '')} ${item.correct} ${item.suffix}`;
+
+        return `
+          <div class="p-4 rounded-2xl border-2 border-slate-100 bg-white flex items-center justify-between gap-4 shadow-sm">
+            <div>
+              <div class="flex flex-wrap items-center gap-2 en-font text-lg md:text-2xl font-bold text-slate-900">
+                <button type="button" onclick="speakText('${fullSentence}')" class="w-8 h-8 rounded-full bg-sky-100 hover:bg-sky-200 text-sky-700 flex items-center justify-center text-xs">🔊</button>
+                <span>${item.prefix}</span>
+                <span ondragover="onZoneDragOver(event)"
+                      ondragleave="onZoneDragLeave(event)"
+                      ondrop="onQ2Drop(event, ${item.id})"
+                      onclick="onQ2SlotClick(${item.id})"
+                      class="drop-zone inline-flex items-center justify-center min-w-[100px] px-4 py-1 rounded-xl border-2 border-dashed cursor-pointer ${slotClass}">
+                  ${val
+                    ? `<span class="font-black">${val}</span><span class="ml-2 text-xs text-rose-500 font-bold">✕</span>`
+                    : `<span class="text-xs text-slate-400 font-semibold" dir="rtl">اختر</span>`
+                  }
+                </span>
+                <span>${item.suffix}</span>
+              </div>
+              ${fbHtml}
+            </div>
+            <div class="bg-slate-50 p-2 rounded-2xl border border-slate-100">
+              ${Q2_SVGS[item.svg]}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function onQ2WordClick(word) {
+      playTone('click');
+      speakText(word);
+      selectedQ2Word = (selectedQ2Word === word) ? null : word;
+      renderQuestion2();
+    }
+
+    function onQ2SlotClick(slotId) {
+      if (selectedQ2Word) {
+        userState.q2[slotId] = selectedQ2Word;
+        userState.checked[2] = false;
+        document.getElementById('q2-feedback').classList.add('hidden');
+        playTone('connect');
+        renderQuestion2();
+        updateDashboard();
+      } else if (userState.q2[slotId]) {
+        userState.q2[slotId] = '';
+        userState.checked[2] = false;
+        document.getElementById('q2-feedback').classList.add('hidden');
+        playTone('click');
+        renderQuestion2();
+        updateDashboard();
+      }
+    }
+
+    function onQ2Drop(e, slotId) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      const word = e.dataTransfer.getData('text/plain');
+      if (!word) return;
+      userState.q2[slotId] = word;
+      userState.checked[2] = false;
+      document.getElementById('q2-feedback').classList.add('hidden');
+      playTone('connect');
+      renderQuestion2();
+      updateDashboard();
+    }
+
+    function clearQ2() {
+      Object.keys(userState.q2).forEach(k => userState.q2[k] = '');
+      selectedQ2Word = null;
+      userState.checked[2] = false;
+      document.getElementById('q2-feedback').classList.add('hidden');
+      playTone('click');
+      renderQuestion2();
+      updateDashboard();
+    }
+
+    /**************************************************************
+     * 8. QUESTION 3: PRESENT PROGRESSIVE (20 ITEMS)
+     **************************************************************/
+    function renderQuestion3() {
+      const listEl = document.getElementById('q3-list');
+      listEl.innerHTML = EXAM_DATA.q3.map(item => {
+        const chosen = userState.q3[item.id] || '';
+        const isCorrect = chosen === item.correct;
+        let rowStyle = 'border-slate-200 bg-white';
+        let fbHtml = '';
+
+        if (userState.checked[3]) {
+          if (isCorrect) {
+            rowStyle = 'border-emerald-500 bg-emerald-50/30';
+            fbHtml = `<span class="text-xs font-bold text-emerald-700" dir="rtl">✅ صحيحة</span>`;
+          } else {
+            rowStyle = 'border-rose-500 bg-rose-50/30';
+            fbHtml = `<span class="text-xs font-bold text-rose-700" dir="rtl">❌ الصحيح: <u class="en-font">${item.correct}</u></span>`;
+          }
+        }
+
+        const optionsHtml = item.options.map(opt => {
+          const isSelected = chosen === opt;
+          let circleClass = '';
+          if (userState.checked[3]) {
+            if (isSelected && isCorrect) circleClass = 'circled-correct';
+            else if (isSelected && !isCorrect) circleClass = 'circled-wrong';
+            else if (opt === item.correct) circleClass = 'border-dashed !border-emerald-600 text-emerald-800';
+          } else if (isSelected) {
+            circleClass = 'circled';
+          }
+          return `
+            <button type="button"
+                    onclick="onQ3Select(${item.id}, '${opt.replace(/'/g, "\\'")}')"
+                    class="circle-option en-font text-sm md:text-base font-bold text-slate-800 ${circleClass}">
+              ${opt}
+            </button>
+          `;
+        }).join('<span class="text-slate-400 font-bold">–</span>');
+
+        return `
+          <div class="p-3.5 rounded-2xl border-2 ${rowStyle} flex flex-wrap items-center justify-between gap-3 shadow-sm transition">
+            <div class="flex flex-wrap items-center gap-2 en-font text-base md:text-lg font-bold text-slate-900">
+              <button type="button" onclick="speakText('${item.sentence.replace(/^\d+\.\s*/, '').replace(/'/g, "\\'")}')" class="w-7 h-7 rounded-full bg-violet-100 hover:bg-violet-200 text-violet-700 flex items-center justify-center text-xs shrink-0">🔊</button>
+              <span>${item.sentence}</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="en-font font-bold text-slate-400">(</span>
+              ${optionsHtml}
+              <span class="en-font font-bold text-slate-400">)</span>
+              ${fbHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function onQ3Select(id, opt) {
+      playTone('connect');
+      speakText(opt.replace('/', ' '));
+      userState.q3[id] = (userState.q3[id] === opt) ? '' : opt;
+      userState.checked[3] = false;
+      document.getElementById('q3-feedback').classList.add('hidden');
+      renderQuestion3();
+      updateDashboard();
+    }
+
+    function clearQ3() {
+      Object.keys(userState.q3).forEach(k => userState.q3[k] = '');
+      userState.checked[3] = false;
+      document.getElementById('q3-feedback').classList.add('hidden');
+      playTone('click');
+      renderQuestion3();
+      updateDashboard();
+    }
+
+    /**************************************************************
+     * 9. QUESTION 4: WAS AND WERE (10 ITEMS)
+     **************************************************************/
+    function renderQuestion4() {
+      const bankEl = document.getElementById('q4-word-bank');
+      const listEl = document.getElementById('q4-list');
+
+      bankEl.innerHTML = EXAM_DATA.q4.wordBank.map(word => {
+        const isSelected = selectedQ4Word === word;
+        return `
+          <div draggable="true"
+               ondragstart="onWordDragStart(event, '${word}')"
+               onclick="onQ4WordClick('${word}')"
+               class="word-chip en-font px-7 py-2.5 rounded-2xl font-black text-xl border-2 select-none shadow-sm
+               ${isSelected ? 'selected-chip' : 'bg-white text-cyan-900 border-cyan-300 hover:bg-cyan-100'}">
+            ${word}
+          </div>
+        `;
+      }).join('');
+
+      listEl.innerHTML = EXAM_DATA.q4.items.map(item => {
+        const val = userState.q4[item.id] || '';
+        const isCorrect = val.toLowerCase() === item.correct.toLowerCase();
+        let slotClass = 'border-cyan-400 bg-cyan-50/50 text-cyan-950 hover:border-cyan-600';
+        let fbHtml = '';
+
+        if (userState.checked[4]) {
+          if (isCorrect) {
+            slotClass = 'border-emerald-600 bg-emerald-50 text-emerald-900';
+            fbHtml = `<span class="text-xs font-bold text-emerald-700" dir="rtl">✅ صحيحة</span>`;
+          } else {
+            slotClass = 'border-rose-500 bg-rose-50 text-rose-900';
+            fbHtml = `<span class="text-xs font-bold text-rose-700" dir="rtl">❌ الصحيح: <u class="en-font">${item.correct}</u></span>`;
+          }
+        } else if (val) {
+          slotClass = 'border-indigo-600 bg-indigo-50 text-indigo-950';
+        }
+
+        const fullSentence = `${item.prefix.replace(/^\d+\.\s*/, '')} ${item.correct} ${item.suffix}`;
+
+        return `
+          <div class="p-3.5 rounded-2xl border border-slate-200 bg-white flex flex-wrap items-center justify-between gap-2 shadow-sm">
+            <div class="flex flex-wrap items-center gap-2 en-font text-base md:text-lg font-bold text-slate-900">
+              <button type="button" onclick="speakText('${fullSentence}')" class="w-7 h-7 rounded-full bg-cyan-100 hover:bg-cyan-200 text-cyan-800 flex items-center justify-center text-xs">🔊</button>
+              <span>${item.prefix}</span>
+              <span ondragover="onZoneDragOver(event)"
+                    ondragleave="onZoneDragLeave(event)"
+                    ondrop="onQ4Drop(event, ${item.id})"
+                    onclick="onQ4SlotClick(${item.id})"
+                    class="drop-zone inline-flex items-center justify-center min-w-[110px] px-4 py-1 rounded-xl border-2 border-dashed cursor-pointer ${slotClass}">
+                ${val
+                  ? `<span class="font-black">${val}</span><span class="ml-2 text-xs text-rose-500 font-bold">✕</span>`
+                  : `<span class="text-xs text-slate-400 font-semibold" dir="rtl">was / were</span>`
+                }
+              </span>
+              <span>${item.suffix}</span>
+            </div>
+            <div>${fbHtml}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function onQ4WordClick(word) {
+      playTone('click');
+      speakText(word);
+      selectedQ4Word = (selectedQ4Word === word) ? null : word;
+      renderQuestion4();
+    }
+
+    function onQ4SlotClick(slotId) {
+      if (selectedQ4Word) {
+        userState.q4[slotId] = selectedQ4Word;
+        userState.checked[4] = false;
+        document.getElementById('q4-feedback').classList.add('hidden');
+        playTone('connect');
+        renderQuestion4();
+        updateDashboard();
+      } else if (userState.q4[slotId]) {
+        userState.q4[slotId] = '';
+        userState.checked[4] = false;
+        document.getElementById('q4-feedback').classList.add('hidden');
+        playTone('click');
+        renderQuestion4();
+        updateDashboard();
+      }
+    }
+
+    function onQ4Drop(e, slotId) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      const word = e.dataTransfer.getData('text/plain');
+      if (!word) return;
+      userState.q4[slotId] = word;
+      userState.checked[4] = false;
+      document.getElementById('q4-feedback').classList.add('hidden');
+      playTone('connect');
+      renderQuestion4();
+      updateDashboard();
+    }
+
+    function clearQ4() {
+      Object.keys(userState.q4).forEach(k => userState.q4[k] = '');
+      selectedQ4Word = null;
+      userState.checked[4] = false;
+      document.getElementById('q4-feedback').classList.add('hidden');
+      playTone('click');
+      renderQuestion4();
+      updateDashboard();
+    }
+
+    /**************************************************************
+     * 10. QUESTION 5: WASN'T AND WEREN'T (10 ITEMS)
+     **************************************************************/
+    function renderQuestion5() {
+      const bankEl = document.getElementById('q5-word-bank');
+      const listEl = document.getElementById('q5-list');
+
+      bankEl.innerHTML = EXAM_DATA.q5.wordBank.map(word => {
+        const isSelected = selectedQ5Word === word;
+        return `
+          <div draggable="true"
+               ondragstart="onWordDragStart(event, '${word.replace(/'/g, "\\'")}')"
+               onclick="onQ5WordClick('${word.replace(/'/g, "\\'")}')"
+               class="word-chip en-font px-7 py-2.5 rounded-2xl font-black text-xl border-2 select-none shadow-sm
+               ${isSelected ? 'selected-chip' : 'bg-white text-rose-900 border-rose-300 hover:bg-rose-100'}">
+            ${word}
+          </div>
+        `;
+      }).join('');
+
+      listEl.innerHTML = EXAM_DATA.q5.items.map(item => {
+        const val = userState.q5[item.id] || '';
+        const isCorrect = val.toLowerCase() === item.correct.toLowerCase();
+        let slotClass = 'border-rose-400 bg-rose-50/50 text-rose-950 hover:border-rose-600';
+        let fbHtml = '';
+
+        if (userState.checked[5]) {
+          if (isCorrect) {
+            slotClass = 'border-emerald-600 bg-emerald-50 text-emerald-900';
+            fbHtml = `<span class="text-xs font-bold text-emerald-700" dir="rtl">✅ صحيحة</span>`;
+          } else {
+            slotClass = 'border-rose-500 bg-rose-50 text-rose-900';
+            fbHtml = `<span class="text-xs font-bold text-rose-700" dir="rtl">❌ الصحيح: <u class="en-font">${item.correct}</u></span>`;
+          }
+        } else if (val) {
+          slotClass = 'border-indigo-600 bg-indigo-50 text-indigo-950';
+        }
+
+        const fullSentence = `${item.prefix.replace(/^\d+\.\s*/, '')} ${item.correct} ${item.suffix}`;
+
+        return `
+          <div class="p-3.5 rounded-2xl border border-slate-200 bg-white flex flex-wrap items-center justify-between gap-2 shadow-sm">
+            <div class="flex flex-wrap items-center gap-2 en-font text-base md:text-lg font-bold text-slate-900">
+              <button type="button" onclick="speakText('${fullSentence.replace(/'/g, "\\'")}')" class="w-7 h-7 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-800 flex items-center justify-center text-xs">🔊</button>
+              <span>${item.prefix}</span>
+              <span ondragover="onZoneDragOver(event)"
+                    ondragleave="onZoneDragLeave(event)"
+                    ondrop="onQ5Drop(event, ${item.id})"
+                    onclick="onQ5SlotClick(${item.id})"
+                    class="drop-zone inline-flex items-center justify-center min-w-[125px] px-4 py-1 rounded-xl border-2 border-dashed cursor-pointer ${slotClass}">
+                ${val
+                  ? `<span class="font-black">${val}</span><span class="ml-2 text-xs text-rose-500 font-bold">✕</span>`
+                  : `<span class="text-xs text-slate-400 font-semibold" dir="rtl">wasn't / weren't</span>`
+                }
+              </span>
+              <span>${item.suffix}</span>
+            </div>
+            <div>${fbHtml}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function onQ5WordClick(word) {
+      playTone('click');
+      speakText(word);
+      selectedQ5Word = (selectedQ5Word === word) ? null : word;
+      renderQuestion5();
+    }
+
+    function onQ5SlotClick(slotId) {
+      if (selectedQ5Word) {
+        userState.q5[slotId] = selectedQ5Word;
+        userState.checked[5] = false;
+        document.getElementById('q5-feedback').classList.add('hidden');
+        playTone('connect');
+        renderQuestion5();
+        updateDashboard();
+      } else if (userState.q5[slotId]) {
+        userState.q5[slotId] = '';
+        userState.checked[5] = false;
+        document.getElementById('q5-feedback').classList.add('hidden');
+        playTone('click');
+        renderQuestion5();
+        updateDashboard();
+      }
+    }
+
+    function onQ5Drop(e, slotId) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      const word = e.dataTransfer.getData('text/plain');
+      if (!word) return;
+      userState.q5[slotId] = word;
+      userState.checked[5] = false;
+      document.getElementById('q5-feedback').classList.add('hidden');
+      playTone('connect');
+      renderQuestion5();
+      updateDashboard();
+    }
+
+    function clearQ5() {
+      Object.keys(userState.q5).forEach(k => userState.q5[k] = '');
+      selectedQ5Word = null;
+      userState.checked[5] = false;
+      document.getElementById('q5-feedback').classList.add('hidden');
+      playTone('click');
+      renderQuestion5();
+      updateDashboard();
+    }
+
+    /**************************************************************
+     * 11. QUESTION 6: STAR CHART ADVERBS OF FREQUENCY (5 ITEMS)
+     **************************************************************/
+    function renderQuestion6() {
+      const bankEl = document.getElementById('q6-word-bank');
+      const listEl = document.getElementById('q6-list');
+      const usedWords = Object.values(userState.q6).filter(Boolean);
+
+      bankEl.innerHTML = EXAM_DATA.q6.wordBank.map(word => {
+        const isUsed = usedWords.includes(word);
+        const isSelected = selectedQ6Word === word;
+        return `
+          <div draggable="${!isUsed}"
+               ondragstart="onWordDragStart(event, '${word}')"
+               onclick="onQ6WordClick('${word}', ${isUsed})"
+               class="word-chip en-font px-4 py-2 rounded-xl font-black text-lg border select-none
+               ${isUsed
+                 ? 'bg-slate-100 text-slate-300 border-slate-200 line-through cursor-not-allowed'
+                 : isSelected
+                   ? 'selected-chip shadow-md'
+                   : 'bg-white text-pink-600 border-pink-200 hover:bg-pink-50'}">
+            ${word}
+          </div>
+        `;
+      }).join('');
+
+      listEl.innerHTML = EXAM_DATA.q6.items.map(item => {
+        const val = userState.q6[item.id] || '';
+        const isCorrect = val.toLowerCase() === item.correct.toLowerCase();
+        let slotClass = 'border-slate-400 bg-slate-50/70 text-slate-900 hover:border-teal-600';
+        let fbHtml = '';
+
+        if (userState.checked[6]) {
+          if (isCorrect) {
+            slotClass = 'border-emerald-600 bg-emerald-50 text-emerald-900';
+            fbHtml = `<span class="text-xs font-bold text-emerald-700" dir="rtl">✅ صحيحة</span>`;
+          } else {
+            slotClass = 'border-rose-500 bg-rose-50 text-rose-900';
+            fbHtml = `<span class="text-xs font-bold text-rose-700" dir="rtl">❌ الصحيح: <u class="en-font">${item.correct}</u></span>`;
+          }
+        } else if (val) {
+          slotClass = 'border-teal-600 bg-teal-50 text-teal-950';
+        }
+
+        return `
+          <div class="p-3.5 rounded-2xl border border-slate-200 bg-white flex items-center justify-between gap-4 shadow-sm">
+            <div class="flex items-center gap-3">
+              ${renderStarRow(item.stars, item.cross)}
+            </div>
+            <div class="flex items-center gap-3 flex-1 max-w-[260px]">
+              <div ondragover="onZoneDragOver(event)"
+                   ondragleave="onZoneDragLeave(event)"
+                   ondrop="onQ6Drop(event, ${item.id})"
+                   onclick="onQ6SlotClick(${item.id})"
+                   class="drop-zone w-full px-4 py-2 rounded-xl border-b-2 flex items-center justify-between cursor-pointer ${slotClass}">
+                <span></span>
+                ${val
+                  ? `<span class="en-font font-black text-lg">${val}</span><span class="text-xs text-rose-500 font-bold">✕</span>`
+                  : `<span class="text-xs text-slate-400 font-semibold" dir="rtl">ضع الكلمة هنا</span><span></span>`
+                }
+              </div>
+              ${fbHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function onQ6WordClick(word, isUsed) {
+      if (isUsed) return;
+      playTone('click');
+      speakText(word);
+      selectedQ6Word = (selectedQ6Word === word) ? null : word;
+      renderQuestion6();
+    }
+
+    function onQ6SlotClick(slotId) {
+      if (selectedQ6Word) {
+        Object.keys(userState.q6).forEach(k => {
+          if (userState.q6[k] === selectedQ6Word) userState.q6[k] = '';
+        });
+        userState.q6[slotId] = selectedQ6Word;
+        selectedQ6Word = null;
+        userState.checked[6] = false;
+        document.getElementById('q6-feedback').classList.add('hidden');
+        playTone('connect');
+        renderQuestion6();
+        updateDashboard();
+      } else if (userState.q6[slotId]) {
+        userState.q6[slotId] = '';
+        userState.checked[6] = false;
+        document.getElementById('q6-feedback').classList.add('hidden');
+        playTone('click');
+        renderQuestion6();
+        updateDashboard();
+      }
+    }
+
+    function onQ6Drop(e, slotId) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      const word = e.dataTransfer.getData('text/plain');
+      if (!word || !EXAM_DATA.q6.wordBank.includes(word)) return;
+      Object.keys(userState.q6).forEach(k => {
+        if (userState.q6[k] === word) userState.q6[k] = '';
+      });
+      userState.q6[slotId] = word;
+      selectedQ6Word = null;
+      userState.checked[6] = false;
+      document.getElementById('q6-feedback').classList.add('hidden');
+      playTone('connect');
+      renderQuestion6();
+      updateDashboard();
+    }
+
+    function clearQ6() {
+      Object.keys(userState.q6).forEach(k => userState.q6[k] = '');
+      selectedQ6Word = null;
+      userState.checked[6] = false;
+      document.getElementById('q6-feedback').classList.add('hidden');
+      playTone('click');
+      renderQuestion6();
+      updateDashboard();
+    }
+
+    /**************************************************************
+     * 12. QUESTION 7: ORDER THE WORDS TO MAKE SENTENCES (5 ITEMS)
+     **************************************************************/
+    function getQ7BuiltSentence(itemId) {
+      const item = EXAM_DATA.q7.find(x => x.id === itemId);
+      const indices = userState.q7[itemId] || [];
+      return indices.map(idx => item.chunks[idx]).join(' ').replace(/\s+\./g, '.');
+    }
+
+    function renderQuestion7() {
+      const listEl = document.getElementById('q7-list');
+      listEl.innerHTML = EXAM_DATA.q7.map(item => {
+        const chosenIndices = userState.q7[item.id] || [];
+        const built = getQ7BuiltSentence(item.id);
+        const isCorrect = normalizeSentence(built) === normalizeSentence(item.correct);
+
+        let lineStyle = 'border-slate-300 bg-slate-50/70';
+        let fbHtml = '';
+
+        if (userState.checked[7]) {
+          if (isCorrect) {
+            lineStyle = 'border-emerald-600 bg-emerald-50';
+            fbHtml = `<div class="mt-2 text-xs font-bold text-emerald-700" dir="rtl">✅ ترتيب صحيح ممتاز! (${item.ar})</div>`;
+          } else {
+            lineStyle = 'border-rose-500 bg-rose-50';
+            fbHtml = `<div class="mt-2 text-xs font-bold text-rose-700" dir="rtl">❌ الترتيب الصحيح: <span class="en-font underline font-black">${item.correct}</span></div>`;
+          }
+        }
+
+        const availableChips = item.chunks.map((chunk, idx) => {
+          const isUsed = chosenIndices.includes(idx);
+          return `
+            <button type="button"
+                    onclick="onQ7AddChunk(${item.id}, ${idx})"
+                    ${isUsed ? 'disabled' : ''}
+                    class="en-font px-3 py-1.5 rounded-xl border font-bold text-sm md:text-base transition
+                    ${isUsed
+                      ? 'bg-slate-100 text-slate-300 border-slate-200 line-through cursor-not-allowed'
+                      : 'bg-white text-fuchsia-950 border-fuchsia-300 hover:bg-fuchsia-100 shadow-sm'}">
+              ${chunk}
+            </button>
+          `;
+        }).join('');
+
+        const placedChips = chosenIndices.map((chunkIdx, pos) => {
+          const text = item.chunks[chunkIdx];
+          return `
+            <button type="button"
+                    onclick="onQ7RemoveChunk(${item.id}, ${pos})"
+                    class="en-font px-3 py-1 rounded-lg bg-indigo-600 hover:bg-rose-600 text-white font-bold text-sm md:text-base shadow-sm transition"
+                    title="اضغط لإرجاع الكلمة">
+              ${text}
+            </button>
+          `;
+        }).join('');
+
+        return `
+          <div class="p-4 md:p-5 rounded-2xl border-2 border-slate-200 bg-white shadow-sm">
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="en-font text-base md:text-lg font-bold text-slate-700">
+                <span class="text-pink-600 font-black mr-2">${item.id}</span> ${item.prompt}
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button type="button" onclick="speakText('${item.correct.replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-full bg-fuchsia-100 hover:bg-fuchsia-200 text-fuchsia-700 flex items-center justify-center text-xs" title="استمع للجملة">🔊</button>
+                <button type="button" onclick="onQ7ResetItem(${item.id})" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold" dir="rtl">مسح ↺</button>
+              </div>
+            </div>
+
+            <!-- Word Chips to Click -->
+            <div class="flex flex-wrap items-center gap-2 mb-3">
+              ${availableChips}
+            </div>
+
+            <!-- Sentence Answer Line -->
+            <div class="min-h-[48px] p-2.5 rounded-xl border-b-2 ${lineStyle} flex flex-wrap items-center gap-2">
+              ${placedChips || `<span class="text-xs text-slate-400 font-semibold" dir="rtl">اضغط على الكلمات بالترتيب لتكوين الجملة هنا...</span>`}
+            </div>
+            ${fbHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function onQ7AddChunk(itemId, chunkIdx) {
+      if (!userState.q7[itemId].includes(chunkIdx)) {
+        const chunkText = EXAM_DATA.q7.find(x => x.id === itemId).chunks[chunkIdx];
+        playTone('click');
+        speakText(chunkText);
+        userState.q7[itemId].push(chunkIdx);
+        userState.checked[7] = false;
+        document.getElementById('q7-feedback').classList.add('hidden');
+        renderQuestion7();
+        updateDashboard();
+      }
+    }
+
+    function onQ7RemoveChunk(itemId, pos) {
+      playTone('click');
+      userState.q7[itemId].splice(pos, 1);
+      userState.checked[7] = false;
+      document.getElementById('q7-feedback').classList.add('hidden');
+      renderQuestion7();
+      updateDashboard();
+    }
+
+    function onQ7ResetItem(itemId) {
+      playTone('click');
+      userState.q7[itemId] = [];
+      userState.checked[7] = false;
+      document.getElementById('q7-feedback').classList.add('hidden');
+      renderQuestion7();
+      updateDashboard();
+    }
+
+    function clearQ7() {
+      [1, 2, 3, 4, 5].forEach(k => userState.q7[k] = []);
+      userState.checked[7] = false;
+      document.getElementById('q7-feedback').classList.add('hidden');
+      playTone('click');
+      renderQuestion7();
+      updateDashboard();
+    }
+
+    /**************************************************************
+     * 13. QUESTION 8: WRITE SENTENCES USING THE COMPARATIVE FORM (5 ITEMS)
+     **************************************************************/
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function shuffleQ8HelperWords(targetId = null) {
+      EXAM_DATA.q8.forEach(item => {
+        if (targetId === null || item.id === targetId) {
+          let shuffled = shuffleArray(item.helperWords);
+          let attempts = 0;
+          while (shuffled.join(' ') === item.displayCorrect && attempts < 10) {
+            shuffled = shuffleArray(item.helperWords);
+            attempts++;
+          }
+          item.helperWords = shuffled;
+        }
+      });
+    }
+
+    function checkQ8ItemCorrect(itemId) {
+      const item = EXAM_DATA.q8.find(x => x.id === itemId);
+      const userVal = normalizeSentence(userState.q8[itemId]);
+      if (!userVal) return false;
+      return item.accepted.some(ans => normalizeSentence(ans) === userVal);
+    }
+
+    function renderQuestion8() {
+      const listEl = document.getElementById('q8-list');
+      listEl.innerHTML = EXAM_DATA.q8.map(item => {
+        const val = userState.q8[item.id] || '';
+        const isCorrect = checkQ8ItemCorrect(item.id);
+        let inputStyle = 'border-slate-300 bg-slate-50/60 focus:border-emerald-600 focus:bg-white';
+        let fbHtml = '';
+
+        if (userState.checked[8]) {
+          if (isCorrect) {
+            inputStyle = 'border-emerald-600 bg-emerald-50 text-emerald-900';
+            fbHtml = `<div class="mt-2 text-xs font-bold text-emerald-700" dir="rtl">✅ إجابة صحيحة ممتازة! (${item.ar})</div>`;
+          } else {
+            inputStyle = 'border-rose-500 bg-rose-50 text-rose-900';
+            fbHtml = `<div class="mt-2 text-xs font-bold text-rose-700" dir="rtl">❌ الصحيح: <span class="en-font underline font-black">${item.displayCorrect}</span> (${item.ar})</div>`;
+          }
+        }
+
+        const helperBtns = item.helperWords.map(w => `
+          <button type="button"
+                  onclick="onQ8AppendWord(${item.id}, '${w.replace(/'/g, "\\'")}')"
+                  class="en-font px-3 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-sm font-bold transition">
+            + ${w}
+          </button>
+        `).join('');
+
+        return `
+          <div class="p-4 md:p-5 rounded-2xl border-2 border-slate-200 bg-white shadow-sm">
+            <div class="flex items-center justify-between gap-2 mb-2.5">
+              <div class="en-font text-base md:text-lg font-bold text-slate-800">
+                <span class="text-pink-600 font-black mr-2">${item.id}</span> ${item.prompt}
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="speakText('${item.displayCorrect.replace(/'/g, "\\'")}')" class="w-8 h-8 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-700 flex items-center justify-center text-xs" title="استمع للجملة">🔊</button>
+                <button type="button" onclick="onQ8ClearItem(${item.id})" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold" dir="rtl">مسح ↺</button>
+              </div>
+            </div>
+
+            <input type="text"
+                   value="${val.replace(/"/g, '&quot;')}"
+                   oninput="onQ8Input(${item.id}, this.value)"
+                   placeholder="اكتب جملة المقارنة هنا أو اضغط على الكلمات المساعدة بالأسفل..."
+                   class="en-font w-full px-4 py-2.5 rounded-xl border-b-2 font-bold text-base md:text-lg focus:outline-none transition ${inputStyle}" />
+
+            <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+              <span class="text-xs font-bold text-slate-400 ml-2" dir="rtl">كلمات مساعدة للكتابة السريعة:</span>
+              ${helperBtns}
+            </div>
+            ${fbHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function onQ8Input(itemId, value) {
+      userState.q8[itemId] = value;
+      userState.checked[8] = false;
+      document.getElementById('q8-feedback').classList.add('hidden');
+      updateDashboard();
+    }
+
+    function onQ8AppendWord(itemId, word) {
+      playTone('click');
+      speakText(word);
+      const cur = (userState.q8[itemId] || '').trim();
+      userState.q8[itemId] = cur ? `${cur} ${word}` : word;
+      userState.checked[8] = false;
+      document.getElementById('q8-feedback').classList.add('hidden');
+      renderQuestion8();
+      updateDashboard();
+    }
+
+    function onQ8ClearItem(itemId) {
+      playTone('click');
+      userState.q8[itemId] = '';
+      shuffleQ8HelperWords(itemId);
+      userState.checked[8] = false;
+      document.getElementById('q8-feedback').classList.add('hidden');
+      renderQuestion8();
+      updateDashboard();
+    }
+
+    function clearQ8() {
+      [1, 2, 3, 4, 5].forEach(k => userState.q8[k] = '');
+      shuffleQ8HelperWords();
+      userState.checked[8] = false;
+      document.getElementById('q8-feedback').classList.add('hidden');
+      playTone('click');
+      renderQuestion8();
+      updateDashboard();
+    }
+
+    /**************************************************************
+     * 14. NAVIGATION, QUESTION BOARD & SCORING (75 ITEMS TOTAL)
+     **************************************************************/
+    function getQuestionProgress(qNum) {
+      if (qNum === 1) {
+        const a1 = Object.values(userState.q1_p1).filter(Boolean).length;
+        const a2 = Object.values(userState.q1_p2).filter(Boolean).length;
+        return { answered: a1 + a2, total: 13 };
+      } else if (qNum === 2) {
+        return { answered: Object.values(userState.q2).filter(Boolean).length, total: 7 };
+      } else if (qNum === 3) {
+        return { answered: Object.values(userState.q3).filter(Boolean).length, total: 20 };
+      } else if (qNum === 4) {
+        return { answered: Object.values(userState.q4).filter(Boolean).length, total: 10 };
+      } else if (qNum === 5) {
+        return { answered: Object.values(userState.q5).filter(Boolean).length, total: 10 };
+      } else if (qNum === 6) {
+        return { answered: Object.values(userState.q6).filter(Boolean).length, total: 5 };
+      } else if (qNum === 7) {
+        const count = [1, 2, 3, 4, 5].filter(k => (userState.q7[k] || []).length > 0).length;
+        return { answered: count, total: 5 };
+      } else {
+        const count = [1, 2, 3, 4, 5].filter(k => (userState.q8[k] || '').trim().length > 0).length;
+        return { answered: count, total: 5 };
+      }
+    }
+
+    function calculateScores() {
+      let s1 = 0;
+      EXAM_DATA.q1.part1.forEach(item => {
+        if ((userState.q1_p1[item.id] || '').toLowerCase() === item.correct.toLowerCase()) s1++;
+      });
+      EXAM_DATA.q1.part2.forEach(item => {
+        if (userState.q1_p2[item.id] === item.correct) s1++;
+      });
+
+      let s2 = 0;
+      EXAM_DATA.q2.items.forEach(item => {
+        if ((userState.q2[item.id] || '').toLowerCase() === item.correct.toLowerCase()) s2++;
+      });
+
+      let s3 = 0;
+      EXAM_DATA.q3.forEach(item => {
+        if (userState.q3[item.id] === item.correct) s3++;
+      });
+
+      let s4 = 0;
+      EXAM_DATA.q4.items.forEach(item => {
+        if ((userState.q4[item.id] || '').toLowerCase() === item.correct.toLowerCase()) s4++;
+      });
+
+      let s5 = 0;
+      EXAM_DATA.q5.items.forEach(item => {
+        if ((userState.q5[item.id] || '').toLowerCase() === item.correct.toLowerCase()) s5++;
+      });
+
+      let s6 = 0;
+      EXAM_DATA.q6.items.forEach(item => {
+        if ((userState.q6[item.id] || '').toLowerCase() === item.correct.toLowerCase()) s6++;
+      });
+
+      let s7 = 0;
+      EXAM_DATA.q7.forEach(item => {
+        if (normalizeSentence(getQ7BuiltSentence(item.id)) === normalizeSentence(item.correct)) s7++;
+      });
+
+      let s8 = 0;
+      EXAM_DATA.q8.forEach(item => {
+        if (checkQ8ItemCorrect(item.id)) s8++;
+      });
+
+      const totalScore = s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8;
+      const maxScore = 75;
+      const percentage = Math.round((totalScore / maxScore) * 100);
+
+      return { s1, s2, s3, s4, s5, s6, s7, s8, totalScore, maxScore, percentage };
+    }
+
+    function updateDashboard() {
+      const qTitles = [
+        { num: 1, title: 'س1: ظروف التكرار (Adverbs)', icon: '1️⃣' },
+        { num: 2, title: 'س2: الأفعال (Am - Is - Are)', icon: '2️⃣' },
+        { num: 3, title: 'س3: المضارع المستمر (20 فقرة)', icon: '3️⃣' },
+        { num: 4, title: 'س4: الماضي (WAS / WERE)', icon: '4️⃣' },
+        { num: 5, title: 'س5: النفي (WASN\'T / WEREN\'T)', icon: '5️⃣' },
+        { num: 6, title: 'س6: جدول النجوم للتكرار', icon: '6️⃣' },
+        { num: 7, title: 'س7: رتب الكلمات لتكوين جمل', icon: '7️⃣' },
+        { num: 8, title: 'س8: جمل المقارنة (Comparative)', icon: '8️⃣' }
+      ];
+
+      let totalAnswered = 0;
+      const navList = document.getElementById('question-nav-list');
+
+      navList.innerHTML = qTitles.map(q => {
+        const prog = getQuestionProgress(q.num);
+        totalAnswered += prog.answered;
+
+        const headerBadge = document.getElementById(`q${q.num}-badge`);
+        if (headerBadge) headerBadge.textContent = `${prog.answered} / ${prog.total}`;
+
+        const isCurrent = !showAllMode && currentQuestion === q.num;
+        const isComplete = prog.answered === prog.total;
+
+        let btnStyle = 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200';
+        let badgeStyle = 'bg-slate-200 text-slate-700';
+
+        if (isCurrent) {
+          btnStyle = 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200';
+          badgeStyle = 'bg-white text-indigo-700';
+        } else if (isComplete) {
+          btnStyle = 'bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-emerald-200';
+          badgeStyle = 'bg-emerald-600 text-white';
+        }
+
+        return `
+          <button onclick="goToQuestion(${q.num})"
+                  class="w-full p-2.5 rounded-2xl border-2 transition flex items-center justify-between text-right ${btnStyle}">
+            <div class="flex items-center gap-2">
+              <span class="text-base">${q.icon}</span>
+              <div>
+                <div class="text-xs font-extrabold">${q.title}</div>
+                <div class="text-[10px] opacity-80 font-semibold">
+                  ${isComplete ? 'مكتمل بالكامل ✓' : prog.answered > 0 ? 'قيد الحل...' : 'لم يبدأ بعد'}
+                </div>
+              </div>
+            </div>
+            <span class="text-xs font-black px-2 py-0.5 rounded-xl ${badgeStyle}">
+              ${prog.answered}/${prog.total}
+            </span>
+          </button>
+        `;
+      }).join('');
+
+      const overallPct = Math.round((totalAnswered / 75) * 100);
+      document.getElementById('overall-progress-badge').textContent = `${totalAnswered} / 75`;
+      document.getElementById('overall-progress-pct').textContent = `${overallPct}%`;
+      document.getElementById('overall-progress-bar').style.width = `${overallPct}%`;
+    }
+
+    function goToQuestion(qNum) {
+      currentQuestion = qNum;
+      if (showAllMode) {
+        document.getElementById(`q-section-${qNum}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        [1, 2, 3, 4, 5, 6, 7, 8].forEach(n => {
+          const sec = document.getElementById(`q-section-${n}`);
+          if (n === qNum) sec.classList.remove('hidden');
+          else sec.classList.add('hidden');
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      playTone('click');
+      updateDashboard();
+    }
+
+    function toggleShowAllQuestions() {
+      showAllMode = !showAllMode;
+      const btnText = document.getElementById('view-mode-text');
+      if (showAllMode) {
+        [1, 2, 3, 4, 5, 6, 7, 8].forEach(n => document.getElementById(`q-section-${n}`).classList.remove('hidden'));
+        btnText.textContent = 'عرض سؤال واحد فقط';
+      } else {
+        [1, 2, 3, 4, 5, 6, 7, 8].forEach(n => {
+          const sec = document.getElementById(`q-section-${n}`);
+          if (n === currentQuestion) sec.classList.remove('hidden');
+          else sec.classList.add('hidden');
+        });
+        btnText.textContent = 'عرض جميع الأسئلة معاً';
+      }
+      updateDashboard();
+    }
+
+    function checkCurrentQuestion() {
+      checkQuestion(currentQuestion);
+    }
+
+    function checkQuestion(qNum) {
+      userState.checked[qNum] = true;
+      const scores = calculateScores();
+      const qScoreMap = {
+        1: [scores.s1, 13],
+        2: [scores.s2, 7],
+        3: [scores.s3, 20],
+        4: [scores.s4, 10],
+        5: [scores.s5, 10],
+        6: [scores.s6, 5],
+        7: [scores.s7, 5],
+        8: [scores.s8, 5]
+      };
+      const [got, max] = qScoreMap[qNum];
+
+      const fbEl = document.getElementById(`q${qNum}-feedback`);
+      fbEl.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-300', 'text-emerald-900', 'bg-amber-50', 'border-amber-300', 'text-amber-900');
+
+      if (got === max) {
+        playTone('correct');
+        fbEl.classList.add('bg-emerald-50', 'border-emerald-300', 'text-emerald-900');
+        fbEl.innerHTML = `🌟 <strong>تغذية راجعة:</strong> ممتاز جداً! جميع إجاباتك في هذا السؤال صحيحة (${got} من ${max}). بارك الله فيك!`;
+      } else {
+        playTone('wrong');
+        fbEl.classList.add('bg-amber-50', 'border-amber-300', 'text-amber-900');
+        fbEl.innerHTML = `💡 <strong>تغذية راجعة:</strong> حصلت على (${got} من ${max}) في هذا السؤال. تم توضيح الإجابات الصحيحة باللون الأخضر وتصحيح الأخطاء باللون الأحمر لتتمكن من مراجعتها.`;
+      }
+
+      if (qNum === 1) renderQuestion1();
+      if (qNum === 2) renderQuestion2();
+      if (qNum === 3) renderQuestion3();
+      if (qNum === 4) renderQuestion4();
+      if (qNum === 5) renderQuestion5();
+      if (qNum === 6) renderQuestion6();
+      if (qNum === 7) renderQuestion7();
+      if (qNum === 8) renderQuestion8();
+    }
+
+    /**************************************************************
+     * 15. FINISH EXAM, MOTIVATION, FEEDBACK & PRINTABLE REPORT
+     **************************************************************/
+    function getMotivationalData(pct) {
+      if (pct >= 90) {
+        return {
+          trophy: '🏆',
+          stars: '⭐⭐⭐⭐⭐',
+          grade: 'ممتاز ومتميز جداً',
+          heading: 'أداء مبهر! أنت بطل متألق في قواعد اللغة الإنجليزية 🌟',
+          message: 'ما شاء الله! لقد أظهرت إتقاناً رائعاً في ظروف التكرار، والمضارع المستمر، والماضي البسيط (Was/Were)، وترتيب الجمل وصيغ المقارنة. استمر على هذا التفوق!'
+        };
+      } else if (pct >= 75) {
+        return {
+          trophy: '🥇',
+          stars: '⭐⭐⭐⭐',
+          grade: 'جيد جداً',
+          heading: 'عمل رائع جداً! خطوة واحدة نحو الدرجة الكاملة 👏',
+          message: 'أحسنت صنعاً! معظم إجاباتك صحيحة ودقيقة. راجع الملاحظات البسيطة في جدول التغذية الراجعة بالأسفل لتصل إلى 100% في المرة القادمة.'
+        };
+      } else if (pct >= 50) {
+        return {
+          trophy: '🥈',
+          stars: '⭐⭐⭐',
+          grade: 'جيد',
+          heading: 'محاولة طيبة! لديك أساس جيد ويمكنك تحقيق الأفضل 💪',
+          message: 'جهد مشكور! لقد أجبت على عدد جيد من الفقرات، ويمكنك الاستفادة من التغذية الراجعة التفصيلية بالأسفل لمراجعة القواعد وإعادة المحاولة.'
+        };
+      } else {
+        return {
+          trophy: '🌱',
+          stars: '⭐⭐',
+          grade: 'يحتاج إلى مزيد من التدريب',
+          heading: 'لا تستسلم! كل محاولة تجعلك أقوى وأكثر معرفة 🚀',
+          message: 'التعلم رحلة ممتعة! استعرض الإجابات الصحيحة في التغذية الراجعة بالأسفل واستمع لنطق الجمل، ثم أعد المحاولة وستلاحظ تحسناً كبيراً بإذن الله.'
+        };
+      }
+    }
+
+    function finishExam() {
+      examFinished = true;
+      userState.checked = { 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true };
+
+      renderQuestion1();
+      renderQuestion2();
+      renderQuestion3();
+      renderQuestion4();
+      renderQuestion5();
+      renderQuestion6();
+      renderQuestion7();
+      renderQuestion8();
+
+      const scores = calculateScores();
+      const mot = getMotivationalData(scores.percentage);
+      const studentName = document.getElementById('student-name').value.trim() || 'طالب متميز';
+
+      const sidebarCard = document.getElementById('sidebar-result-card');
+      sidebarCard.classList.remove('hidden');
+      document.getElementById('sidebar-score-text').textContent = `${scores.totalScore} / ${scores.maxScore}`;
+      document.getElementById('sidebar-pct-text').textContent = `${scores.percentage}% - ${mot.grade}`;
+
+      document.getElementById('modal-trophy').textContent = mot.trophy;
+      document.getElementById('modal-title').textContent = mot.grade;
+      document.getElementById('modal-total-score').textContent = `${scores.totalScore} / ${scores.maxScore}`;
+      document.getElementById('modal-percentage').textContent = `${scores.percentage}%`;
+      document.getElementById('modal-stars').textContent = mot.stars;
+      document.getElementById('modal-student-name').textContent = studentName;
+      document.getElementById('modal-motivation-heading').textContent = mot.heading;
+      document.getElementById('modal-motivation-text').textContent = mot.message;
+
+      const breakdownItems = [
+        { num: 1, name: 'س1: ظروف التكرار',       got: scores.s1, max: 13 },
+        { num: 2, name: 'س2: Am - Is - Are',      got: scores.s2, max: 7 },
+        { num: 3, name: 'س3: المضارع المستمر',     got: scores.s3, max: 20 },
+        { num: 4, name: 'س4: WAS / WERE',         got: scores.s4, max: 10 },
+        { num: 5, name: 'س5: WASN\'T / WEREN\'T', got: scores.s5, max: 10 },
+        { num: 6, name: 'س6: جدول النجوم',         got: scores.s6, max: 5 },
+        { num: 7, name: 'س7: ترتيب الكلمات',       got: scores.s7, max: 5 },
+        { num: 8, name: 'س8: جمل المقارنة',        got: scores.s8, max: 5 }
+      ];
+
+      document.getElementById('modal-questions-breakdown').innerHTML = breakdownItems.map(b => {
+        const full = b.got === b.max;
+        return `
+          <div class="p-3 rounded-2xl border-2 ${full ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}">
+            <div class="text-xs font-extrabold text-slate-600 mb-1">${b.name}</div>
+            <div class="flex items-center justify-between">
+              <span class="text-lg font-black ${full ? 'text-emerald-700' : 'text-indigo-900'}">${b.got} / ${b.max}</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${full ? 'bg-emerald-200 text-emerald-900' : 'bg-amber-100 text-amber-800'}">
+                ${full ? 'مكتمل ✓' : 'راجع'}
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const detailedHtml = buildDetailedFeedbackHtml();
+      document.getElementById('modal-detailed-feedback').innerHTML = detailedHtml;
+
+      const nowStr = new Date().toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('print-date').textContent = `التاريخ: ${nowStr}`;
+      document.getElementById('print-student-name').textContent = studentName;
+      document.getElementById('print-total-score').textContent = `${scores.totalScore} / ${scores.maxScore}`;
+      document.getElementById('print-percentage').textContent = `${scores.percentage}%`;
+      document.getElementById('print-grade').textContent = `${mot.grade} ${mot.stars}`;
+      document.getElementById('print-motivation').textContent = `${mot.heading} — ${mot.message}`;
+
+      document.getElementById('print-questions-summary').innerHTML = breakdownItems.map(b => `
+        <div class="p-2 rounded-xl border border-slate-300 bg-white">
+          <div class="text-[11px] font-bold text-slate-600">${b.name}</div>
+          <div class="text-base font-black text-indigo-900 mt-1">${b.got} / ${b.max}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('print-detailed-tables').innerHTML = detailedHtml;
+
+      openResultsModal();
+      playTone('fanfare');
+      launchConfetti();
+    }
+
+    function buildDetailedFeedbackHtml() {
+      const q7Rows = EXAM_DATA.q7.map(item => {
+        const userAns = getQ7BuiltSentence(item.id) || 'فارغ';
+        const ok = normalizeSentence(userAns) === normalizeSentence(item.correct);
+        return `
+          <tr class="border-b border-slate-100 ${ok ? 'bg-emerald-50/40' : 'bg-rose-50/40'}">
+            <td class="py-1.5 px-2.5 font-bold">#${item.id}</td>
+            <td class="py-1.5 px-2.5 en-font font-bold">${userAns}</td>
+            <td class="py-1.5 px-2.5 en-font font-bold text-emerald-700">${item.correct}</td>
+            <td class="py-1.5 px-2.5 font-bold text-center">${ok ? '✅' : '❌'}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const q8Rows = EXAM_DATA.q8.map(item => {
+        const userAns = userState.q8[item.id] || 'فارغ';
+        const ok = checkQ8ItemCorrect(item.id);
+        return `
+          <tr class="border-b border-slate-100 ${ok ? 'bg-emerald-50/40' : 'bg-rose-50/40'}">
+            <td class="py-1.5 px-2.5 en-font font-bold">${item.prompt}</td>
+            <td class="py-1.5 px-2.5 en-font font-bold">${userAns}</td>
+            <td class="py-1.5 px-2.5 en-font font-bold text-emerald-700">${item.displayCorrect}</td>
+            <td class="py-1.5 px-2.5 font-bold text-center">${ok ? '✅' : '❌'}</td>
+          </tr>
+        `;
+      }).join('');
+
+      return `
+        <div class="space-y-4">
+          <div class="border border-slate-200 rounded-2xl overflow-hidden">
+            <div class="bg-fuchsia-50 px-4 py-2 font-extrabold text-fuchsia-950 text-xs">السؤال السابع: ترتيب الكلمات لتكوين جمل (Order the words)</div>
+            <table class="w-full text-right text-xs">
+              <thead class="bg-slate-100 text-slate-600">
+                <tr><th class="py-1.5 px-2.5">#</th><th class="py-1.5 px-2.5">إجابتك</th><th class="py-1.5 px-2.5">الجملة الصحيحة</th><th class="py-1.5 px-2.5 text-center">التقييم</th></tr>
+              </thead>
+              <tbody>${q7Rows}</tbody>
+            </table>
+          </div>
+
+          <div class="border border-slate-200 rounded-2xl overflow-hidden">
+            <div class="bg-emerald-50 px-4 py-2 font-extrabold text-emerald-950 text-xs">السؤال الثامن: جمل المقارنة (Comparative Sentences)</div>
+            <table class="w-full text-right text-xs">
+              <thead class="bg-slate-100 text-slate-600">
+                <tr><th class="py-1.5 px-2.5">الكلمات</th><th class="py-1.5 px-2.5">إجابتك</th><th class="py-1.5 px-2.5">الإجابة الصحيحة</th><th class="py-1.5 px-2.5 text-center">التقييم</th></tr>
+              </thead>
+              <tbody>${q8Rows}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function openResultsModal() {
+      document.getElementById('results-modal').classList.remove('hidden');
+    }
+
+    function closeResultsModal() {
+      document.getElementById('results-modal').classList.add('hidden');
+    }
+
+    function reviewOnBoard() {
+      closeResultsModal();
+      if (!showAllMode) {
+        toggleShowAllQuestions();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function printExamResult() {
+      if (!examFinished) {
+        finishExam();
+      }
+      window.print();
+    }
+
+    function resetAllExam() {
+      clearQ1();
+      clearQ2();
+      clearQ3();
+      clearQ4();
+      clearQ5();
+      clearQ6();
+      clearQ7();
+      clearQ8();
+      userState.checked = { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false, 7: false, 8: false };
+      examFinished = false;
+
+      [1, 2, 3, 4, 5, 6, 7, 8].forEach(n => {
+        document.getElementById(`q${n}-feedback`).classList.add('hidden');
+      });
+      document.getElementById('sidebar-result-card').classList.add('hidden');
+
+      goToQuestion(1);
+    }
+
+    /**************************************************************
+     * 16. CONFETTI CELEBRATION ANIMATION
+     **************************************************************/
+    function launchConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const pieces = [];
+      const colors = ['#4f46e5', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'];
+
+      for (let i = 0; i < 110; i++) {
+        pieces.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          w: Math.random() * 10 + 6,
+          h: Math.random() * 6 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vy: Math.random() * 3.5 + 2,
+          vx: (Math.random() - 0.5) * 2.5,
+          angle: Math.random() * 360,
+          vAngle: (Math.random() - 0.5) * 8
+        });
+      }
+
+      let frame = 0;
+      function animate() {
+        frame++;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          p.y += p.vy;
+          p.x += p.vx;
+          p.angle += p.vAngle;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.angle * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        if (frame < 180) {
+          requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      animate();
+    }
+  </script>
+</body>
+</html>
